@@ -1,0 +1,1 @@
+# Control_Stock_App_Movile
