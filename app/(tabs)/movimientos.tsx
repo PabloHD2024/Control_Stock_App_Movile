@@ -8,31 +8,29 @@ export default function MovimientosScreen() {
   const [refreshing, setRefreshing] = useState(false);
 
   const fetchMovimientos = async () => {
-    try {
-      // Modificá el .from() si tu tabla de logs se llama diferente
-      // El .select('*, equipos(serie, modelo)') hace un JOIN automático para traer los datos del equipo
-      const { data, error } = await supabase
-        .from('equipment_logs')
-        .select(`
-          id,
-          created_at,
-          previous_location,
-          new_location,
-          previous_counter,
-          new_counter,
-          equipos ( serie, modelo )
-        `)
-        .order('created_at', { ascending: false });
+  try {
+    const { data, error } = await supabase
+      .from('equipment_logs')
+      .select(`
+        id,
+        created_at,
+        previous_location,
+        new_location,
+        previous_counter,
+        new_counter,
+        equipos!equipment_id ( serie, modelo ) 
+      `) // <-- NOTA: El !equipment_id le dice explícitamente a Supabase qué clave foránea usar
+      .order('created_at', { ascending: false });
 
-      if (error) throw error;
-      setLogs(data || []);
-    } catch (err: any) {
-      console.error(err.message);
-    } finally {
-      setLoading(false);
-      setRefreshing(false);
-    }
-  };
+    if (error) throw error;
+    setLogs(data || []);
+  } catch (err: any) {
+    console.error("Error obteniendo movimientos:", err.message);
+  } finally {
+    setLoading(false);
+    setRefreshing(false);
+  }
+};
 
   useEffect(() => {
     fetchMovimientos();
@@ -56,20 +54,34 @@ export default function MovimientosScreen() {
         keyExtractor={(item) => item.id.toString()}
         refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}
         ListEmptyComponent={<Text style={styles.empty}>No hay movimientos registrados.</Text>}
-        renderItem={({ item }) => (
-          <View style={styles.card}>
-            <View style={styles.cardHeader}>
-              <Text style={styles.serie}>S/N: {item.equipos?.serie || 'Desconocido'}</Text>
-              <Text style={styles.date}>{new Date(item.created_at).toLocaleDateString()}</Text>
-            </View>
-            <Text style={styles.model}>{item.equipos?.modelo}</Text>
-            
-            <View style={styles.detailsRow}>
-              <Text style={styles.detailText}>📍 Cliente: {item.previous_location || 'S/D'} ➔ <Text style={{fontWeight: 'bold'}}>{item.new_location}</Text></Text>
-              <Text style={styles.detailText}>🔢 Cont: {item.previous_counter} ➔ <Text style={{fontWeight: 'bold'}}>{item.new_counter}</Text></Text>
-            </View>
-          </View>
-        )}
+        // Reemplaza el renderItem dentro de tu FlatList en movimientos.tsx
+renderItem={({ item }) => (
+  <View style={styles.card}>
+    <View style={styles.cardHeader}>
+      
+      <Text style={styles.serie}>
+        S/N: {item.equipos?.serie ? item.equipos.serie : `Equipo Eliminado (ID: ${item.equipment_id})`}
+      </Text>
+      <Text style={styles.date}>
+        {item.created_at ? new Date(item.created_at).toLocaleDateString() : 'S/F'}
+      </Text>
+    </View>
+    
+    {/* Agregamos la validación ?. para el modelo */}
+    <Text style={styles.model}>
+      {item.equipos?.modelo ? item.equipos.modelo : 'Sin especificación de modelo'}
+    </Text>
+    
+    <View style={styles.detailsRow}>
+      <Text style={styles.detailText}>
+        📍 Ubicación: {item.previous_location || 'Depósito'} ➔ <Text style={{fontWeight: 'bold'}}>{item.new_location}</Text>
+      </Text>
+      <Text style={styles.detailText}>
+        🔢 Cont: {item.previous_counter ?? 0} ➔ <Text style={{fontWeight: 'bold'}}>{item.new_counter ?? 0}</Text>
+      </Text>
+    </View>
+  </View>
+)}
       />
     </View>
   );

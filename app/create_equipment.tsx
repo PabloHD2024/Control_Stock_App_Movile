@@ -16,35 +16,36 @@ export default function CreateEquipmentScreen() {
   const [originId, setOriginId] = useState('');
 
   const handleCreate = async () => {
-    if (!serial.trim() || !model.trim() || !inputCounter.trim()) {
-      return Alert.alert('Error', 'Nº de Serie, Modelo y Contador de entrada son obligatorios.');
-    }
+  if (!serial.trim() || !model.trim() || !inputCounter.trim()) {
+    return Alert.alert('Error', 'Nº de Serie, Modelo y Contador de entrada son obligatorios.');
+  }
 
-    setSubmitting(true);
+  setSubmitting(true);
 
-    try {
-      const { error } = await supabase.from('equipos').insert([{
-        serie: serial.trim().toUpperCase(),
-        modelo: model.trim(),
-        estado: status.trim(),
-        contador_entrada: parseInt(inputCounter, 10),
-        contador_salida: parseInt(inputCounter, 10), // Inicialmente coinciden
-        lugar_origen_id: originId.trim() ? parseInt(originId, 10) : null,
-        fecha_entrada: new Date().toISOString(),
-        ultimo_movimiento: new Date().toISOString()
-      }]);
+  try {
+    const { error } = await supabase.from('equipos').insert([{serie: serial.trim().toUpperCase(),
+      modelo: model.trim(),
+      estado: status.trim(),
+      contador_entrada: parseInt(inputCounter, 10),
+      contador_salida: parseInt(inputCounter, 10), 
+      lugar_origen_id: originId.trim() ? parseInt(originId, 10) : null,
+      fecha_entrada: new Date().toISOString(),
+    }]);
 
-      if (error) throw error;
+    if (error) throw error; // <-- CRÍTICO: Si Supabase da error, fuerza el salto al catch
 
-      Alert.alert('Éxito', 'Equipo registrado correctamente.', [
-        { text: 'OK', onPress: () => router.dismissAll() } // Vuelve al inicio limpio
-      ]);
-    } catch (err: any) {
-      Alert.alert('Error al crear', err.message);
-    } finally {
-      setSubmitting(false);
-    }
-  };
+    // Cartel de Éxito funcional:
+    Alert.alert('Éxito', 'Equipo añadido con éxito a la base de datos.', [ // Solo funciona en el celular, en web no se muestra el alert
+      { text: 'OK', onPress: () => router.dismissAll() }
+    ]);
+    
+  } catch (error: any) {
+    // Cartel de Error funcional:
+    Alert.alert('Error al añadir equipo', error.message || 'Verifica que el número de serie no esté duplicado.');
+  } finally {
+    setSubmitting(false);
+  }
+};
 
   return (
     <ScrollView style={styles.container} contentContainerStyle={{ padding: 20 }}>

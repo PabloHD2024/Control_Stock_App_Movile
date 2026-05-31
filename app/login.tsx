@@ -41,7 +41,7 @@ export default function LoginScreen() {
       source={require('../assets/Warehouse_Bkg_5.png')}
       style={styles.containerBackground}
       resizeMode="cover" // Opciones: 'cover', 'contain', 'stretch', 'repeat', 'center'
-      imageStyle={{ opacity: 0.4 }} // Ajusta la opacidad de la imagen de fondo
+      imageStyle={{ opacity: 0.5 }} // Ajusta la opacidad de la imagen de fondo
     >
       <Text style={styles.logo}>Control de Activos</Text>
 
@@ -94,9 +94,9 @@ const styles = StyleSheet.create({
   container: { flex: 1, justifyContent: 'center', backgroundColor: '#f8f9fa' },
   logo: { fontSize: 35, fontWeight: 'bold', textAlign: 'center', marginBottom: 40, color: '#0c2b8f' },
   inputContainer: { marginBottom: 16, paddingHorizontal: 20 },
-  label: { fontSize: 14, fontWeight: '500', color: '#0c2b8f', padding: 7},
-  input: { backgroundColor: '#fff', padding: 12, fontSize: 16, borderRadius: 8, borderWidth: 1, borderColor: '#ced4da' },
+  label: { fontSize: 15, fontWeight: '700', color: '#0c2b8f', padding: 5},
+  input: { backgroundColor: '#fff', padding: 12, fontSize: 16, borderRadius: 8, borderWidth: 1, borderColor: '#ced4da', color: '#a7a7a7' },
   button: { backgroundColor: '#007bff', borderRadius: 8, padding: 14, alignItems: 'center', marginTop: 10, marginHorizontal: 20 },
   buttonText: { color: '#fff', fontSize: 16, fontWeight: '600' },
-  containerBackground: { flex: 1, justifyContent: 'center' },
+  containerBackground: { flex: 1, justifyContent: 'center', width: '100%', height: '100%' },
 });

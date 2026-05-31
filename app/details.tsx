@@ -175,7 +175,7 @@ const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: '#fff' },
   center: { flex: 1, justifyContent: 'center', alignItems: 'center' },
   roleNotice: { fontSize: 14, fontWeight: 'bold', color: '#6c757d', marginBottom: 15 },
-  label: { fontSize: 14, fontWeight: '500', color: '#495057', marginTop: 12, marginBottom: 4 },
+  label: { fontSize: 14, fontWeight: '500', color: '#7e7e7e', marginTop: 12, marginBottom: 4 },
   input: { backgroundColor: '#f8f9fa', borderWidth: 1, borderColor: '#ced4da', borderRadius: 6, padding: 10, fontSize: 16 },
   disabled: { backgroundColor: '#e9ecef', color: '#6c757d' },
   separator: { height: 1, backgroundColor: '#dee2e6', marginVertical: 20 },

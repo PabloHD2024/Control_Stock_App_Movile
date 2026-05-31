@@ -1,7 +1,7 @@
 import React, { useEffect } from 'react';
 import { ActivityIndicator, View } from 'react-native';
 import { Stack, useRouter, useSegments } from 'expo-router';
-import { AuthProvider, useAuth } from '../context/AuthContext'; // Ajustá la ruta de tu contexto
+import { AuthProvider, useAuth } from '../context/AuthContext';
 
 function RootLayoutNav() {
   const { session, loading } = useAuth();

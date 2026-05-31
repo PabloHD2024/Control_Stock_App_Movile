@@ -25,28 +25,29 @@ export default function UsuariosScreen() {
   }
 
   const handleCreateUserProfile = async () => {
-    if (!email.trim()) return Alert.alert('Error', 'El correo electrónico es obligatorio.');
-    
-    setLoading(true);
-    try {
-      // Insertamos el perfil en tu tabla de roles/perfiles personalizados
-      const { error } = await supabase
-        .from('perfiles') // Ajustá al nombre de tu tabla de roles (ej: user_roles o profiles)
-        .insert([{ 
-          email: email.trim().toLowerCase(), 
-          rol: userRole 
-        }]);
+  if (!email.trim()) return Alert.alert('Error', 'El correo electrónico es obligatorio.');
+  
+  setLoading(true);
+  try {
+    const { error } = await supabase
+      .from('perfiles') 
+      .insert([{ 
+        email: email.trim().toLowerCase(), 
+        rol: userRole 
+      }]);
 
-      if (error) throw error;
+    if (error) throw error;
 
-      Alert.alert('Éxito', `Perfil creado como "${userRole}". El usuario ya puede registrarse en la app.`);
-      setEmail('');
-    } catch (err: any) {
-      Alert.alert('Error', err.message);
-    } finally {
-      setLoading(false);
-    }
-  };
+    // Cartel de éxito
+    Alert.alert('Éxito', `Usuario añadido con éxito con el rol: ${userRole}.`);
+    setEmail('');
+  } catch (err: any) {
+    // Cartel de error
+    Alert.alert('Error', err.message || 'No se pudo añadir el usuario.');
+  } finally {
+    setLoading(false);
+  }
+};
 
   return (
     <View style={styles.container}>
@@ -91,14 +92,14 @@ export default function UsuariosScreen() {
 
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: '#f4f6f9', padding: 20 },
-  title: { fontSize: 22, fontWeight: 'bold', color: '#333' },
+  title: { fontSize: 22, fontWeight: 'bold', color: '#007bff' },
   subtitle: { fontSize: 13, color: '#6c757d', marginBottom: 20, marginTop: 4 },
   center: { flex: 1, justifyContent: 'center', alignItems: 'center', padding: 20 },
   deniedText: { fontSize: 20, fontWeight: 'bold', color: '#dc3545', marginBottom: 8 },
   deniedSub: { fontSize: 14, color: '#6c757d', textAlign: 'center' },
   formCard: { backgroundColor: '#fff', borderRadius: 8, padding: 15, borderWidth: 1, borderColor: '#e3e6ec' },
   label: { fontSize: 14, fontWeight: '500', color: '#495057', marginTop: 10, marginBottom: 6 },
-  input: { backgroundColor: '#f8f9fa', borderWidth: 1, borderColor: '#ced4da', borderRadius: 6, padding: 12, fontSize: 16 },
+  input: { backgroundColor: '#f8f9fa', borderWidth: 1, borderColor: '#ced4da', borderRadius: 6, padding: 12, fontSize: 16, color: '#a7a7a7' },
   roleContainer: { flexDirection: 'row', justifyContent: 'space-between', marginTop: 4, marginBottom: 15 },
   roleBtn: { flex: 1, paddingVertical: 12, borderWidth: 1, borderColor: '#ced4da', alignItems: 'center', borderRadius: 6, marginRight: 5, backgroundColor: '#f8f9fa' },
   activeRole: { backgroundColor: '#007bff', borderColor: '#007bff' },

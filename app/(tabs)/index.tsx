@@ -110,9 +110,7 @@ export default function ScanScreen() {
       />
       <View style={styles.overlay}>
         <Text style={styles.scanText}>Apunta al código QR o de barras</Text>
-        <TouchableOpacity style={styles.logoutBtn} onPress={signOut}>
-          <Text style={styles.logoutText}>Cerrar Sesión</Text>
-        </TouchableOpacity>
+        {/* El botón de cerrar sesión que estaba acá fue eliminado */}
       </View>
     </View>
   );
@@ -123,6 +121,4 @@ const styles = StyleSheet.create({
   center: { flex: 1, justifyContent: 'center', alignItems: 'center', padding: 20 },
   overlay: { flex: 1, backgroundColor: 'transparent', padding: 20, justifyContent: 'space-between' },
   scanText: { color: '#fff', fontSize: 16, textAlign: 'center', backgroundColor: 'rgba(0,0,0,0.6)', padding: 10, borderRadius: 8, marginTop: 20 },
-  logoutBtn: { backgroundColor: '#dc3545', padding: 12, borderRadius: 8, alignItems: 'center', marginBottom: 10 },
-  logoutText: { color: '#fff', fontWeight: 'bold' }
 });

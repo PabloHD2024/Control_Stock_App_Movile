@@ -10,26 +10,26 @@ export default function AdminScreen() {
   const [counter, setCounter] = useState('0');
 
   const handleCreate = async () => {
-    if (!serial || !brand || !model || !location) {
-      return Alert.alert('Error', 'Completa los campos obligatorios');
-    }
+  if (!serial || !brand || !model || !location) {
+    return Alert.alert('Error', 'Completa los campos obligatorios');
+  }
 
-    const { error } = await supabase.from('equipments').insert({
-      serial_number: serial,
-      brand,
-      model,
-      current_location: location,
-      initial_counter: parseInt(counter, 10),
-      current_counter: parseInt(counter, 10),
+  try {
+    const { error } = await supabase.from('equipos').insert({serie: serial.trim().toUpperCase(),
+      modelo: `${brand} ${model}`, // Consolida marca y modelo
+      estado: 'Disponible',
+      contador_entrada: parseInt(counter, 10),
+      contador_salida: parseInt(counter, 10),
     });
 
-    if (error) {
-      Alert.alert('Error', 'No se pudo crear el activo (puede que la serie ya exista).');
-    } else {
-      Alert.alert('Éxito', 'Equipo registrado.');
-      setSerial(''); setBrand(''); setModel(''); setCounter('0');
-    }
-  };
+    if (error) throw error;
+
+    Alert.alert('Éxito', 'Equipo añadido con éxito.');
+    setSerial(''); setBrand(''); setModel(''); setCounter('0');
+  } catch (error: any) {
+    Alert.alert('Error', 'No se pudo añadir el equipo: ' + error.message);
+  }
+};
 
   return (
     <ScrollView style={{ backgroundColor: '#f8f9fa' }} contentContainerStyle={{ padding: 20 }}>
@@ -60,7 +60,7 @@ export default function AdminScreen() {
 const styles = StyleSheet.create({
   sectionTitle: { fontSize: 20, fontWeight: 'bold', marginBottom: 20 },
   label: { fontSize: 14, marginBottom: 4, fontWeight: '500' },
-  input: { backgroundColor: '#fff', padding: 12, borderWidth: 1, borderColor: '#ced4da', borderRadius: 8, marginBottom: 14 },
+  input: { backgroundColor: '#fff', padding: 12, borderWidth: 1, borderColor: '#ced4da', borderRadius: 8, marginBottom: 14, color: '#a7a7a7' },
   btn: { backgroundColor: '#28a745', padding: 14, borderRadius: 8, alignItems: 'center', marginTop: 10 },
   btnText: { color: '#fff', fontWeight: 'bold', fontSize: 16 }
 });
