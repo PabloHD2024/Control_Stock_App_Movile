@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
-import { StyleSheet, Text, TextInput, TouchableOpacity, View, Alert, ActivityIndicator, ScrollView } from 'react-native';
+import { Text, TextInput, TouchableOpacity, Alert, ActivityIndicator, ScrollView } from 'react-native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { supabase } from '../lib/supabase';
+import styles from './styles/styles';
 
 export default function CreateEquipmentScreen() {
   const { serie } = useLocalSearchParams();
@@ -48,36 +49,27 @@ export default function CreateEquipmentScreen() {
 };
 
   return (
-    <ScrollView style={styles.container} contentContainerStyle={{ padding: 20 }}>
-      <Text style={styles.title}>Registrar Nuevo Equipo</Text>
+    <ScrollView style={styles.container_C_E} contentContainerStyle={{ padding: 20 }}>
+      <Text style={styles.title_C_E}>Registrar Nuevo Equipo</Text>
 
-      <Text style={styles.label}>Nº de Serie (Escaneado)</Text>
-      <TextInput style={styles.input} value={serial} onChangeText={setSerial} placeholder="Nº de Serie" />
+      <Text style={styles.label_C_E}>Nº de Serie (Escaneado)</Text>
+      <TextInput style={styles.input_C_E} value={serial} onChangeText={setSerial} placeholder="Nº de Serie" />
 
-      <Text style={styles.label}>Modelo / Descripción</Text>
-      <TextInput style={styles.input} value={model} onChangeText={setModel} placeholder="Ej: HP LaserJet M404dn" />
+      <Text style={styles.label_C_E}>Modelo / Descripción</Text>
+      <TextInput style={styles.input_C_E} value={model} onChangeText={setModel} placeholder="Ej: HP LaserJet M404dn" />
 
-      <Text style={styles.label}>Estado Inicial</Text>
-      <TextInput style={styles.input} value={status} onChangeText={setStatus} placeholder="Ej: Disponible, En Depósito" />
+      <Text style={styles.label_C_E}>Estado Inicial</Text>
+      <TextInput style={styles.input_C_E} value={status} onChangeText={setStatus} placeholder="Ej: Disponible, En Depósito" />
 
-      <Text style={styles.label}>Contador de Entrada Inicial</Text>
-      <TextInput style={styles.input} value={inputCounter} onChangeText={setInputCounter} keyboardType="numeric" placeholder="Ej: 0" />
+      <Text style={styles.label_C_E}>Contador de Entrada Inicial</Text>
+      <TextInput style={styles.input_C_E} value={inputCounter} onChangeText={setInputCounter} keyboardType="numeric" placeholder="Ej: 0" />
 
-      <Text style={styles.label}>ID Cliente de Origen (Opcional)</Text>
-      <TextInput style={styles.input} value={originId} onChangeText={setOriginId} keyboardType="numeric" placeholder="Dejar vacío si es stock propio" />
+      <Text style={styles.label_C_E}>ID Cliente de Origen (Opcional)</Text>
+      <TextInput style={styles.input_C_E} value={originId} onChangeText={setOriginId} keyboardType="numeric" placeholder="Dejar vacío si es stock propio" />
 
-      <TouchableOpacity style={styles.btn} onPress={handleCreate} disabled={submitting}>
-        {submitting ? <ActivityIndicator color="#fff" /> : <Text style={styles.btnText}>Dar de Alta Equipo</Text>}
+      <TouchableOpacity style={styles.btn_C_E} onPress={handleCreate} disabled={submitting}>
+        {submitting ? <ActivityIndicator color="#fff" /> : <Text style={styles.btnText_C_E}>Dar de Alta Equipo</Text>}
       </TouchableOpacity>
     </ScrollView>
   );
 }
-
-const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#fff' },
-  title: { fontSize: 22, fontWeight: 'bold', marginBottom: 20, color: '#333' },
-  label: { fontSize: 14, fontWeight: '500', color: '#495057', marginTop: 12, marginBottom: 4 },
-  input: { backgroundColor: '#f8f9fa', borderWidth: 1, borderColor: '#ced4da', borderRadius: 6, padding: 12, fontSize: 16 },
-  btn: { backgroundColor: '#28a745', borderRadius: 6, padding: 14, alignItems: 'center', marginTop: 30 },
-  btnText: { color: '#fff', fontSize: 16, fontWeight: '600' }
-});

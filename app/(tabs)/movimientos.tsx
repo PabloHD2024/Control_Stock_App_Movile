@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { StyleSheet, Text, View, FlatList, ActivityIndicator, RefreshControl } from 'react-native';
 import { supabase } from '../../lib/supabase';
+import { styles } from '../styles/styles';
 
 export default function MovimientosScreen() {
   const [logs, setLogs] = useState<any[]>([]);
@@ -42,41 +43,41 @@ export default function MovimientosScreen() {
   };
 
   if (loading) {
-    return <View style={styles.center}><ActivityIndicator size="large" color="#007bff" /></View>;
+    return <View style={styles.center_tab_movimientos}><ActivityIndicator size="large" color="#007bff" /></View>;
   }
 
   return (
-    <View style={styles.container}>
-      <Text style={styles.title}>Historial de Movimientos</Text>
+    <View style={styles.container_tab_movimientos}>
+      <Text style={styles.title_tab_movimientos}>Historial de Movimientos</Text>
       
       <FlatList
         data={logs}
         keyExtractor={(item) => item.id.toString()}
         refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}
-        ListEmptyComponent={<Text style={styles.empty}>No hay movimientos registrados.</Text>}
-        // Reemplaza el renderItem dentro de tu FlatList en movimientos.tsx
+        ListEmptyComponent={<Text style={styles.empty_tab_movimientos}>No hay movimientos registrados.</Text>}
+
 renderItem={({ item }) => (
-  <View style={styles.card}>
-    <View style={styles.cardHeader}>
+  <View style={styles.card_tab_movimientos}>
+    <View style={styles.cardHeader_tab_movimientos}>
       
-      <Text style={styles.serie}>
+      <Text style={styles.serie_tab_movimientos}>
         S/N: {item.equipos?.serie ? item.equipos.serie : `Equipo Eliminado (ID: ${item.equipment_id})`}
       </Text>
-      <Text style={styles.date}>
+      <Text style={styles.date_tab_movimientos}>
         {item.created_at ? new Date(item.created_at).toLocaleDateString() : 'S/F'}
       </Text>
     </View>
     
     {/* Agregamos la validación ?. para el modelo */}
-    <Text style={styles.model}>
+    <Text style={styles.model_tab_movimientos}>
       {item.equipos?.modelo ? item.equipos.modelo : 'Sin especificación de modelo'}
     </Text>
     
-    <View style={styles.detailsRow}>
-      <Text style={styles.detailText}>
+    <View style={styles.detailsRow_tab_movimientos}>
+      <Text style={styles.detailText_tab_movimientos}>
         📍 Ubicación: {item.previous_location || 'Depósito'} ➔ <Text style={{fontWeight: 'bold'}}>{item.new_location}</Text>
       </Text>
-      <Text style={styles.detailText}>
+      <Text style={styles.detailText_tab_movimientos}>
         🔢 Cont: {item.previous_counter ?? 0} ➔ <Text style={{fontWeight: 'bold'}}>{item.new_counter ?? 0}</Text>
       </Text>
     </View>
@@ -86,17 +87,3 @@ renderItem={({ item }) => (
     </View>
   );
 }
-
-const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#f4f6f9', paddingHorizontal: 15, paddingTop: 20 },
-  title: { fontSize: 22, fontWeight: 'bold', marginBottom: 15, color: '#333' },
-  center: { flex: 1, justifyContent: 'center', alignItems: 'center' },
-  empty: { textAlign: 'center', color: '#6c757d', marginTop: 30, fontSize: 16 },
-  card: { backgroundColor: '#fff', borderRadius: 8, padding: 15, marginBottom: 12, borderWidth: 1, borderColor: '#e3e6ec' },
-  cardHeader: { flexDirection: 'row', justifyContent: 'space-between', marginBottom: 4 },
-  serie: { fontSize: 16, fontWeight: 'bold', color: '#007bff' },
-  date: { fontSize: 12, color: '#6c757d' },
-  model: { fontSize: 14, color: '#495057', marginBottom: 8 },
-  detailsRow: { borderTopWidth: 1, borderTopColor: '#f1f3f5', paddingTop: 8, marginTop: 4 },
-  detailText: { fontSize: 13, color: '#212529', marginBottom: 2 }
-});

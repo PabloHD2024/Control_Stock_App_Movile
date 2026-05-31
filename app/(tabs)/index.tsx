@@ -4,6 +4,7 @@ import { CameraView, useCameraPermissions } from 'expo-camera';
 import { useRouter } from 'expo-router';
 import { supabase } from '../../lib/supabase';
 import { useAuth } from '../../context/AuthContext';
+import { styles } from '../styles/styles';
 
 export default function ScanScreen() {
   const [permission, requestPermission] = useCameraPermissions();
@@ -14,39 +15,12 @@ export default function ScanScreen() {
   if (!permission) return <View />;
   if (!permission.granted) {
     return (
-      <View style={styles.center}>
-        <Text style={{ marginBottom: 16, textAlign: 'center' }}>Requiere permisos de cámara para escanear.</Text>
+      <View style={styles.center_tab_index}>
+        <Text style={styles.permisos_tab_index}>Requiere permisos de cámara para escanear.</Text>
         <Button onPress={requestPermission} title="Dar Permiso" />
       </View>
     );
   }
-
-  // const handleBarcodeScanned = async ({ data }: { data: string }) => {
-  //   setScanned(true);
-  //   console.log("Serie leída del código escaneado:", data);
-
-  //   const { data: equipo, error } = await supabase
-  //     .from('equipos')
-  //     .select('*')
-  //     .eq('serie', data)
-  //     .maybeSingle();
-
-  //   if (error || !equipo) {
-  //     alert('Error en el servidor al buscar el equipo.');
-  //     setScanned(false);
-  //     return;
-  //   }
-
-  //   if (!equipo) {
-  //     alert(`El equipo con número de serie: ${data} no se encuentra registrado. ¿Quisiera darle de alta?`);
-  //     setScanned(false);
-  //     return;
-  //   }
-
-  //   // Redirige pasando el ID del equipo en la URL
-  //   router.push({ pathname: '/details', params: { id: equipo.id } });
-  //   setTimeout(() => setScanned(false), 1000); // Reset del escáner
-  // };
 
   const handleBarCodeScanned = async ({ type, data }: { type: string, data: string }) => {
   // 1. Limpiamos espacios y pasamos a mayúsculas por si las dudas
@@ -57,7 +31,7 @@ export default function ScanScreen() {
   const { data: resultados, error } = await supabase
     .from('equipos')
     .select('*')
-    .eq('serie', serieEscaneada); // Si en Supabase está en minúsculas, probá quitar el .toUpperCase()
+    .eq('serie', serieEscaneada);
 
   if (error) {
     console.error("Error al consultar Supabase:", error.message);
@@ -102,23 +76,15 @@ export default function ScanScreen() {
 };
 
   return (
-    <View style={styles.container}>
+    <View style={styles.container_tab_index}>
       <CameraView
         onBarcodeScanned={scanned ? undefined : handleBarCodeScanned}
         barcodeScannerSettings={{ barcodeTypes: ['qr', 'code128', 'code39'] }}
         style={StyleSheet.absoluteFillObject}
       />
-      <View style={styles.overlay}>
-        <Text style={styles.scanText}>Apunta al código QR o de barras</Text>
-        {/* El botón de cerrar sesión que estaba acá fue eliminado */}
+      <View style={styles.overlay_tab_index}>
+        <Text style={styles.scanText_tab_index}>Apunta al código QR o de barras</Text>
       </View>
     </View>
   );
 }
-
-const styles = StyleSheet.create({
-  container: { flex: 1 },
-  center: { flex: 1, justifyContent: 'center', alignItems: 'center', padding: 20 },
-  overlay: { flex: 1, backgroundColor: 'transparent', padding: 20, justifyContent: 'space-between' },
-  scanText: { color: '#fff', fontSize: 16, textAlign: 'center', backgroundColor: 'rgba(0,0,0,0.6)', padding: 10, borderRadius: 8, marginTop: 20 },
-});

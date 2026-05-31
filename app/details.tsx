@@ -3,6 +3,7 @@ import { StyleSheet, Text, TextInput, View, TouchableOpacity, Alert, ScrollView,
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { supabase } from '../lib/supabase';
 import { useAuth } from '../context/AuthContext';
+import styles from './styles/styles';
 
 export default function DetailsScreen() {
   const { id, serie } = useLocalSearchParams();
@@ -133,52 +134,40 @@ export default function DetailsScreen() {
   };
 
   if (loading) {
-    return <View style={styles.center}><ActivityIndicator size="large" color="#007bff" /></View>;
+    return <View style={styles.center_D_S}><ActivityIndicator size="large" color="#007bff" /></View>;
   }
 
   return (
-    <ScrollView style={styles.container} contentContainerStyle={{ padding: 20 }}>
-      <Text style={styles.roleNotice}>Modo de acceso: {isAdmin ? 'Administrador' : 'Usuario General'}</Text>
+    <ScrollView style={styles.container_D_S} contentContainerStyle={{ padding: 20 }}>
+      <Text style={styles.roleNotice_D_S}>Modo de acceso: {isAdmin ? 'Administrador' : 'Usuario General'}</Text>
       
-      <Text style={styles.label}>Nº de Serie</Text>
-      <TextInput style={[styles.input, !isAdmin && styles.disabled]} value={serialNumber} onChangeText={setSerialNumber} editable={isAdmin} />
+      <Text style={styles.label_D_S}>Nº de Serie</Text>
+      <TextInput style={[styles.input_D_S, !isAdmin && styles.disabled_D_S]} value={serialNumber} onChangeText={setSerialNumber} editable={isAdmin} />
 
-      <Text style={styles.label}>Modelo</Text>
-      <TextInput style={[styles.input, !isAdmin && styles.disabled]} value={model} onChangeText={setModel} editable={isAdmin} />
+      <Text style={styles.label_D_S}>Modelo</Text>
+      <TextInput style={[styles.input_D_S, !isAdmin && styles.disabled_D_S]} value={model} onChangeText={setModel} editable={isAdmin} />
 
-      <Text style={styles.label}>Estado del Equipo</Text>
-      <TextInput style={[styles.input, !isAdmin && styles.disabled]} value={status} onChangeText={setStatus} editable={isAdmin} placeholder="Ej: Activo, En reparación" />
+      <Text style={styles.label_D_S}>Estado del Equipo</Text>
+      <TextInput style={[styles.input_D_S, !isAdmin && styles.disabled_D_S]} value={status} onChangeText={setStatus} editable={isAdmin} placeholder="Ej: Activo, En reparación" />
 
-      <Text style={styles.label}>Contador de Entrada (Inicial)</Text>
-      <TextInput style={[styles.input, !isAdmin && styles.disabled]} value={inputCounter} onChangeText={setInputCounter} editable={isAdmin} keyboardType="numeric" />
+      <Text style={styles.label_D_S}>Contador de Entrada (Inicial)</Text>
+      <TextInput style={[styles.input_D_S, !isAdmin && styles.disabled_D_S]} value={inputCounter} onChangeText={setInputCounter} editable={isAdmin} keyboardType="numeric" />
 
-      <Text style={styles.label}>ID Cliente de Origen</Text>
-      <TextInput style={[styles.input, !isAdmin && styles.disabled]} value={originLocationId} onChangeText={setOriginLocationId} editable={isAdmin} keyboardType="numeric" placeholder="ID Cliente Origen" />
+      <Text style={styles.label_D_S}>ID Cliente de Origen</Text>
+      <TextInput style={[styles.input_D_S, !isAdmin && styles.disabled_D_S]} value={originLocationId} onChangeText={setOriginLocationId} editable={isAdmin} keyboardType="numeric" placeholder="ID Cliente Origen" />
 
-      <View style={styles.separator} />
+      <View style={styles.separator_D_S} />
 
       {/* Secciones editables por todos (Logística de campo) */}
-      <Text style={styles.label}>ID Cliente de Destino (Relacionar con Cliente)</Text>
-      <TextInput style={styles.input} value={destinationLocationId} onChangeText={setDestinationLocationId} keyboardType="numeric" placeholder="Ingresá el ID numérico del cliente" />
+      <Text style={styles.label_D_S}>ID Cliente de Destino (Relacionar con Cliente)</Text>
+      <TextInput style={styles.input_D_S} value={destinationLocationId} onChangeText={setDestinationLocationId} keyboardType="numeric" placeholder="Ingresá el ID numérico del cliente" />
 
-      <Text style={styles.label}>Contador de Salida / Cierre Actual</Text>
-      <TextInput style={styles.input} value={outputCounter} onChangeText={setOutputCounter} keyboardType="numeric" placeholder="Contador actual de la impresora" />
+      <Text style={styles.label_D_S}>Contador de Salida / Cierre Actual</Text>
+      <TextInput style={styles.input_D_S} value={outputCounter} onChangeText={setOutputCounter} keyboardType="numeric" placeholder="Contador actual de la impresora" />
 
-      <TouchableOpacity style={styles.saveBtn} onPress={handleUpdate} disabled={submitting}>
-        {submitting ? <ActivityIndicator color="#fff" /> : <Text style={styles.saveText}>Guardar Movimiento</Text>}
+      <TouchableOpacity style={styles.saveBtn_D_S} onPress={handleUpdate} disabled={submitting}>
+        {submitting ? <ActivityIndicator color="#fff" /> : <Text style={styles.saveText_D_S}>Guardar Movimiento</Text>}
       </TouchableOpacity>
     </ScrollView>
   );
 }
-
-const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#fff' },
-  center: { flex: 1, justifyContent: 'center', alignItems: 'center' },
-  roleNotice: { fontSize: 14, fontWeight: 'bold', color: '#6c757d', marginBottom: 15 },
-  label: { fontSize: 14, fontWeight: '500', color: '#7e7e7e', marginTop: 12, marginBottom: 4 },
-  input: { backgroundColor: '#f8f9fa', borderWidth: 1, borderColor: '#ced4da', borderRadius: 6, padding: 10, fontSize: 16 },
-  disabled: { backgroundColor: '#e9ecef', color: '#6c757d' },
-  separator: { height: 1, backgroundColor: '#dee2e6', marginVertical: 20 },
-  saveBtn: { backgroundColor: '#007bff', borderRadius: 6, padding: 14, alignItems: 'center', marginTop: 20 },
-  saveText: { color: '#fff', fontSize: 16, fontWeight: '600' }
-});

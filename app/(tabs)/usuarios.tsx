@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { StyleSheet, Text, TextInput, TouchableOpacity, View, Alert, ActivityIndicator } from 'react-native';
 import { useAuth } from '../../context/AuthContext';
 import { supabase } from '../../lib/supabase';
+import { styles } from '../styles/styles';
 
 export default function UsuariosScreen() {
   const { role, user } = useAuth();
@@ -17,9 +18,9 @@ export default function UsuariosScreen() {
   // Bloqueo de seguridad a nivel de interfaz
   if (!isAdmin) {
     return (
-      <View style={styles.center}>
-        <Text style={styles.deniedText}>⚠️ Acceso Denegado</Text>
-        <Text style={styles.deniedSub}>Esta sección es exclusiva para Administradores del sistema.</Text>
+      <View style={styles.center_tab_usuarios}>
+        <Text style={styles.deniedText_tab_usuarios}>⚠️ Acceso Denegado</Text>
+        <Text style={styles.deniedSub_tab_usuarios}>Esta sección es exclusiva para Administradores del sistema.</Text>
       </View>
     );
   }
@@ -50,14 +51,14 @@ export default function UsuariosScreen() {
 };
 
   return (
-    <View style={styles.container}>
-      <Text style={styles.title}>Gestión de Usuarios</Text>
-      <Text style={styles.subtitle}>Habilitá nuevos correos electrónicos y asignales un rol de acceso.</Text>
+    <View style={styles.container_tab_usuarios}>
+      <Text style={styles.title_tab_usuarios}>Gestión de Usuarios</Text>
+      <Text style={styles.subtitle_tab_usuarios}>Habilitá nuevos correos electrónicos y asignales un rol de acceso.</Text>
 
-      <View style={styles.formCard}>
-        <Text style={styles.label}>Correo Electrónico del Colaborador</Text>
+      <View style={styles.formCard_tab_usuarios}>
+        <Text style={styles.label_tab_usuarios}>Correo Electrónico del Colaborador</Text>
         <TextInput 
-          style={styles.input} 
+          style={styles.input_tab_usuarios} 
           value={email} 
           onChangeText={setEmail} 
           keyboardType="email-address" 
@@ -65,46 +66,27 @@ export default function UsuariosScreen() {
           placeholder="ejemplo@empresa.com" 
         />
 
-        <Text style={styles.label}>Rol de Sistema</Text>
-        <View style={styles.roleContainer}>
+        <Text style={styles.label_tab_usuarios}>Rol de Sistema</Text>
+        <View style={styles.roleContainer_tab_usuarios}>
           <TouchableOpacity 
-            style={[styles.roleBtn, userRole === 'user' && styles.activeRole]} 
+            style={[styles.roleBtn_tab_usuarios, userRole === 'user' && styles.activeRole_tab_usuarios]} 
             onPress={() => setUserRole('user')}
           >
-            <Text style={[styles.roleBtnText, userRole === 'user' && styles.activeRoleText]}>Usuario General</Text>
+            <Text style={[styles.roleBtnText_tab_usuarios, userRole === 'user' && styles.activeRoleText_tab_usuarios]}>Usuario General</Text>
           </TouchableOpacity>
           
           <TouchableOpacity 
-            style={[styles.roleBtn, userRole === 'admin' && styles.activeRole]} 
+            style={[styles.roleBtn_tab_usuarios, userRole === 'admin' && styles.activeRole_tab_usuarios]} 
             onPress={() => setUserRole('admin')}
           >
-            <Text style={[styles.roleBtnText, userRole === 'admin' && styles.activeRoleText]}>Administrador</Text>
+            <Text style={[styles.roleBtnText_tab_usuarios, userRole === 'admin' && styles.activeRoleText_tab_usuarios]}>Administrador</Text>
           </TouchableOpacity>
         </View>
 
-        <TouchableOpacity style={styles.saveBtn} onPress={handleCreateUserProfile} disabled={loading}>
-          {loading ? <ActivityIndicator color="#fff" /> : <Text style={styles.saveText}>Habilitar Usuario</Text>}
+        <TouchableOpacity style={styles.saveBtn_tab_usuarios} onPress={handleCreateUserProfile} disabled={loading}>
+          {loading ? <ActivityIndicator color="#fff" /> : <Text style={styles.saveText_tab_usuarios}>Habilitar Usuario</Text>}
         </TouchableOpacity>
       </View>
     </View>
   );
 }
-
-const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#f4f6f9', padding: 20 },
-  title: { fontSize: 22, fontWeight: 'bold', color: '#007bff' },
-  subtitle: { fontSize: 13, color: '#6c757d', marginBottom: 20, marginTop: 4 },
-  center: { flex: 1, justifyContent: 'center', alignItems: 'center', padding: 20 },
-  deniedText: { fontSize: 20, fontWeight: 'bold', color: '#dc3545', marginBottom: 8 },
-  deniedSub: { fontSize: 14, color: '#6c757d', textAlign: 'center' },
-  formCard: { backgroundColor: '#fff', borderRadius: 8, padding: 15, borderWidth: 1, borderColor: '#e3e6ec' },
-  label: { fontSize: 14, fontWeight: '500', color: '#495057', marginTop: 10, marginBottom: 6 },
-  input: { backgroundColor: '#f8f9fa', borderWidth: 1, borderColor: '#ced4da', borderRadius: 6, padding: 12, fontSize: 16, color: '#a7a7a7' },
-  roleContainer: { flexDirection: 'row', justifyContent: 'space-between', marginTop: 4, marginBottom: 15 },
-  roleBtn: { flex: 1, paddingVertical: 12, borderWidth: 1, borderColor: '#ced4da', alignItems: 'center', borderRadius: 6, marginRight: 5, backgroundColor: '#f8f9fa' },
-  activeRole: { backgroundColor: '#007bff', borderColor: '#007bff' },
-  roleBtnText: { fontSize: 14, color: '#495057', fontWeight: '500' },
-  activeRoleText: { color: '#fff', fontWeight: 'bold' },
-  saveBtn: { backgroundColor: '#007bff', borderRadius: 6, padding: 14, alignItems: 'center', marginTop: 15 },
-  saveText: { color: '#fff', fontSize: 16, fontWeight: '600' }
-});

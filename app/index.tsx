@@ -2,6 +2,7 @@ import React from 'react';
 import { Redirect } from 'expo-router';
 import { useAuth } from '../context/AuthContext';
 import { View, ActivityIndicator, Text, StyleSheet } from 'react-native';
+import styles from './styles/styles';
 
 export default function IndexPage() {
   const { session, loading } = useAuth();
@@ -10,9 +11,9 @@ export default function IndexPage() {
 
   if (loading) {
     return (
-      <View style={styles.container}>
+      <View style={styles.container_Index}>
         <ActivityIndicator size="large" color="#007bff" />
-        <Text style={styles.text}>Cargando configuración...</Text>
+        <Text style={styles.text_Index}>Cargando configuración...</Text>
       </View>
     );
   }
@@ -23,17 +24,3 @@ export default function IndexPage() {
     return <Redirect href="/login" />;
   }
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    alignItems: 'center',
-    justifyContent: 'center',
-    backgroundColor: '#f8f9fa',
-  },
-  text: {
-    marginTop: 10,
-    color: '#6c757d',
-    fontSize: 14,
-  },
-});
