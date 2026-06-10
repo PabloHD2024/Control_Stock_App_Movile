@@ -7,7 +7,7 @@ export const styles = StyleSheet.create({
     title_C_E: { fontSize: 22, fontWeight: 'bold', marginBottom: 20, color: '#333' },
     label_C_E: { fontSize: 14, fontWeight: '500', color: '#495057', marginTop: 12, marginBottom: 4 },
     input_C_E: { backgroundColor: '#f8f9fa', borderWidth: 1, borderColor: '#ced4da', borderRadius: 6, padding: 12, fontSize: 16 },
-    btn_C_E: { backgroundColor: '#28a745', borderRadius: 6, padding: 14, alignItems: 'center', marginTop: 30 },
+    btn_C_E: { backgroundColor: '#0400ff', borderRadius: 6, padding: 14, alignItems: 'center', marginTop: 30 },
     btnText_C_E: { color: '#fff', fontSize: 16, fontWeight: '600' },
 
     // Estilos para details.tsx
@@ -18,7 +18,7 @@ export const styles = StyleSheet.create({
     input_D_S: { backgroundColor: '#f8f9fa', borderWidth: 1, borderColor: '#ced4da', borderRadius: 6, padding: 10, fontSize: 16 },
     disabled_D_S: { backgroundColor: '#e9ecef', color: '#6c757d' },
     separator_D_S: { height: 1, backgroundColor: '#dee2e6', marginVertical: 20 },
-    saveBtn_D_S: { backgroundColor: '#007bff', borderRadius: 6, padding: 14, alignItems: 'center', marginTop: 20 },
+    saveBtn_D_S: { backgroundColor: '#0400ff', borderRadius: 6, padding: 14, alignItems: 'center', marginTop: 20 },
     saveText_D_S: { color: '#fff', fontSize: 16, fontWeight: '600' },
 
     // Estilos para index.tsx
@@ -31,7 +31,7 @@ export const styles = StyleSheet.create({
     inputContainer_login: { marginBottom: 16, paddingHorizontal: 20 },
     label_login: { fontSize: 15, fontWeight: '700', color: '#0c2b8f', padding: 5},
     input_login: { backgroundColor: '#fff', padding: 12, fontSize: 16, borderRadius: 8, borderWidth: 1, borderColor: '#ced4da', color: '#a7a7a7' },
-    button_login: { backgroundColor: '#007bff', borderRadius: 8, padding: 14, alignItems: 'center', marginTop: 10, marginHorizontal: 20 },
+    button_login: { backgroundColor: '#0400ff', borderRadius: 8, padding: 14, alignItems: 'center', marginTop: 10, marginHorizontal: 20 },
     buttonText_login: { color: '#fff', fontSize: 16, fontWeight: '600' },
     containerBackground_login: { flex: 1, justifyContent: 'center', width: '100%', height: '100%' },
 
@@ -40,7 +40,7 @@ export const styles = StyleSheet.create({
     sectionTitle_tab_admin: { fontSize: 20, fontWeight: 'bold', marginBottom: 20 },
     label_tab_admin: { fontSize: 14, marginBottom: 4, fontWeight: '500' },
     input_tab_admin: { backgroundColor: '#fff', padding: 12, borderWidth: 1, borderColor: '#ced4da', borderRadius: 8, marginBottom: 14, color: '#a7a7a7' },
-    btn_tab_admin: { backgroundColor: '#28a745', padding: 14, borderRadius: 8, alignItems: 'center', marginTop: 10 },
+    btn_tab_admin: { backgroundColor: '#0400ff', padding: 14, borderRadius: 8, alignItems: 'center', marginTop: 10 },
     btnText_tab_admin: { color: '#fff', fontWeight: 'bold', fontSize: 16 },
 
     // Estilos para tab/index.tsx
@@ -79,7 +79,16 @@ export const styles = StyleSheet.create({
     roleBtnText_tab_usuarios: { fontSize: 14, color: '#495057', fontWeight: '500' },
     activeRoleText_tab_usuarios: { color: '#fff', fontWeight: 'bold' },
     saveBtn_tab_usuarios: { backgroundColor: '#007bff', borderRadius: 6, padding: 14, alignItems: 'center', marginTop: 15 },
-    saveText_tab_usuarios: { color: '#fff', fontSize: 16, fontWeight: '600' }
+    saveText_tab_usuarios: { color: '#fff', fontSize: 16, fontWeight: '600' },
+
+    // Estilo del header personalizado (en customHeader.tsx, pero lo dejo aquí para referencia rápida)
+    headerContainer: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', backgroundColor: '#0c2b8f', paddingTop: 50,
+    paddingBottom: 15, paddingHorizontal: 20, elevation: 13, shadowColor: '#000', shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.2,
+    marginTop: 20,// Ajuste para que el header quede pegado a la parte superior sin espacio extra
+    marginBottom: 20, },
+    headerTitle: { color: '#fff', fontSize: 20, fontWeight: 'bold'},
+    logoutBtn: { flexDirection: 'row', backgroundColor: '#ff0019', paddingVertical: 6, paddingHorizontal: 20, borderRadius: 5,},
+    logoutText: { color: '#fff', fontWeight: 'bold', fontSize: 14,},
 
 });
 

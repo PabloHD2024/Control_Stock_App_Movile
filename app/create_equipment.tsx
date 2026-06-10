@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Text, TextInput, TouchableOpacity, Alert, ActivityIndicator, ScrollView } from 'react-native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
-import { supabase } from '../lib/supabase';
+import { getDB } from '../lib/database';
 import styles from './styles/styles';
 
 export default function CreateEquipmentScreen() {
@@ -9,7 +9,6 @@ export default function CreateEquipmentScreen() {
   const router = useRouter();
   const [submitting, setSubmitting] = useState(false);
 
-  // Estados basados exactamente en tus columnas de 'equipos'
   const [serial, setSerial] = useState((serie as string) || '');
   const [model, setModel] = useState('');
   const [status, setStatus] = useState('Disponible');
@@ -17,36 +16,49 @@ export default function CreateEquipmentScreen() {
   const [originId, setOriginId] = useState('');
 
   const handleCreate = async () => {
-  if (!serial.trim() || !model.trim() || !inputCounter.trim()) {
-    return Alert.alert('Error', 'Nº de Serie, Modelo y Contador de entrada son obligatorios.');
-  }
+    if (!serial.trim() || !model.trim() || !inputCounter.trim()) {
+      return Alert.alert('Error', 'Nº de Serie, Modelo y Contador de entrada son obligatorios.');
+    }
 
-  setSubmitting(true);
+    setSubmitting(true);
 
-  try {
-    const { error } = await supabase.from('equipos').insert([{serie: serial.trim().toUpperCase(),
-      modelo: model.trim(),
-      estado: status.trim(),
-      contador_entrada: parseInt(inputCounter, 10),
-      contador_salida: parseInt(inputCounter, 10), 
-      lugar_origen_id: originId.trim() ? parseInt(originId, 10) : null,
-      fecha_entrada: new Date().toISOString(),
-    }]);
+    try {
+      // 1. Obtener la instancia de la base de datos
+      const db = await getDB();
 
-    if (error) throw error; // <-- CRÍTICO: Si Supabase da error, fuerza el salto al catch
+      // 2. Preparar los datos limpios
+      const serieFormateada = serial.trim().toUpperCase();
+      const modeloFormateado = model.trim();
+      const estadoFormateado = status.trim();
+      const contEntrada = parseInt(inputCounter, 10) || 0;
+      const contSalida = parseInt(inputCounter, 10) || 0;
+      const origenId = originId.trim() ? parseInt(originId, 10) : null;
+      const fecha = new Date().toISOString();
 
-    // Cartel de Éxito funcional:
-    Alert.alert('Éxito', 'Equipo añadido con éxito a la base de datos.', [ // Solo funciona en el celular, en web no se muestra el alert
-      { text: 'OK', onPress: () => router.dismissAll() }
-    ]);
-    
-  } catch (error: any) {
-    // Cartel de Error funcional:
-    Alert.alert('Error al añadir equipo', error.message || 'Verifica que el número de serie no esté duplicado.');
-  } finally {
-    setSubmitting(false);
-  }
-};
+      // 3. Ejecutar la inserción en SQLite (usando parámetros seguros '?' para evitar SQL Injection)
+      await db.runAsync(
+        `INSERT INTO equipos (serie, modelo, estado, contador_entrada, contador_salida, lugar_origen_id, fecha_entrada) 
+        VALUES (?, ?, ?, ?, ?, ?, ?);`,
+        [serieFormateada, modeloFormateado, estadoFormateado, contEntrada, contSalida, origenId, fecha]  // ← origenId puede ser null
+      );
+
+      // Cartel de Éxito
+      Alert.alert('Éxito', 'Equipo añadido localmente a SQLite.', [
+        { text: 'OK', onPress: () => router.dismissAll() }
+      ]);
+      
+    } catch (error: any) {
+      console.error(error);
+      // SQLite arroja un error específico si se viola el UNIQUE de la columna 'serie'
+      if (error.message?.includes('UNIQUE constraint failed')) {
+        Alert.alert('Error', 'El número de serie ya se encuentra registrado.');
+      } else {
+        Alert.alert('Error al añadir equipo', 'No se pudo guardar en la base de datos local.');
+      }
+    } finally {
+      setSubmitting(false);
+    }
+  };
 
   return (
     <ScrollView style={styles.container_C_E} contentContainerStyle={{ padding: 20 }}>

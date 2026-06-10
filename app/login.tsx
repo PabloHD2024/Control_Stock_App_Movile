@@ -1,41 +1,42 @@
-import React, { useState } from 'react';
-import { StyleSheet, Text, TextInput, View, TouchableOpacity, Alert, ActivityIndicator, ImageBackground } from 'react-native';
-import { supabase } from '../lib/supabase';
+import React, { useState, useEffect } from 'react';
+import { Text, TextInput, View, TouchableOpacity, Alert, ActivityIndicator, ImageBackground } from 'react-native';
 import { styles } from './styles/styles';
+import { useAuth } from '../context/AuthContext';
+import { getDB } from '../lib/database';
+
+//Chequeamos que la BD se inicialice correctamente y que el admin por defecto esté presente
+useEffect(() => {
+  const checkDB = async () => {
+    const db = await getDB();
+    const users = await db.getAllAsync('SELECT * FROM perfiles');
+    console.log('Usuarios en BD:', users);
+  };
+  checkDB();
+}, []);
 
 export default function LoginScreen() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
+  const { loginLocal } = useAuth(); // <-- Consumimos el nuevo login local
 
   const handleSignIn = async () => {
-    if (!email.trim() || !password.trim()) {
-      return Alert.alert('Campos incompletos', 'Por favor, ingresa tu correo y contraseña.');
+    if (!email.trim() || !password) {
+      return Alert.alert('Error', 'Por favor, completa todos los campos.');
     }
-    
+
     setLoading(true);
-    console.log("Intentando conectar con Supabase para el email:", email.trim());
     
-    try {
-      const { data, error } = await supabase.auth.signInWithPassword({
-        email: email.trim(),
-        password: password,
-      });
-      
-      console.log("Respuesta de Supabase - Data:", data);
-      console.log("Respuesta de Supabase - Error:", error);
+    // Llamamos al login offline
+    const { error } = await loginLocal(email, password);
 
-      if (error) {
-        Alert.alert('Error de autenticación', error.message);
-      }
-    } catch (err: any) {
-      console.log("Error general atrapado en el bloque catch:", err);
-      Alert.alert('Error de red', 'No se pudo establecer comunicación con el servidor.');
-    } finally {
-      setLoading(false);
-    }const styles = StyleSheet.create({
+    setLoading(false);
 
-});
+    if (error) {
+      Alert.alert('Error de Inicio de Sesión', error);
+    }
+    // Nota: Si el login es exitoso, el useEffect de tu _layout.tsx 
+    // se activará solo y redirigirá al usuario a las pestañas.
   };
 
   return (

@@ -2,6 +2,19 @@ import React, { useEffect } from 'react';
 import { ActivityIndicator, View } from 'react-native';
 import { Stack, useRouter, useSegments } from 'expo-router';
 import { AuthProvider, useAuth } from '../context/AuthContext';
+import { initializeDatabase } from '../lib/database';
+
+export default function RootLayout() {
+  useEffect(() => {
+    initializeDatabase().catch(err => console.error("Error al inicializar BD:", err));
+  }, []);
+
+  return (
+    <AuthProvider>
+      <RootLayoutNav />
+    </AuthProvider>
+  );
+}
 
 function RootLayoutNav() {
   const { session, loading } = useAuth();
@@ -11,14 +24,11 @@ function RootLayoutNav() {
   useEffect(() => {
     if (loading) return;
 
-    // Averiguamos si el usuario está actualmente en las pantallas de adentro (las que están en la carpeta tabs)
     const inAuthGroup = segments[0] === '(tabs)';
 
     if (!session && inAuthGroup) {
-      // Si NO hay sesión y quiere entrar a las pestañas, lo pateamos al Login
-      router.replace('/login'); 
+      router.replace('/login');
     } else if (session && !inAuthGroup) {
-      // Si SÍ hay sesión y está en el login, lo mandamos directo al Escáner
       router.replace('/(tabs)');
     }
   }, [session, loading, segments]);
@@ -31,21 +41,13 @@ function RootLayoutNav() {
     );
   }
 
-  // Definimos las rutas del Stack de navegación
   return (
     <Stack screenOptions={{ headerShown: false }}>
       <Stack.Screen name="login" options={{ gestureEnabled: false }} />
       <Stack.Screen name="(tabs)" />
-      <Stack.Screen name="create-equipment" options={{ headerShown: true, title: 'Nuevo Equipo' }} />
+      <Stack.Screen name="create_equipment" options={{ headerShown: false }} />
+      <Stack.Screen name="details" options={{ headerShown: false }} />
+      <Stack.Screen name="lista_usuarios" options={{ headerShown: false }} />
     </Stack>
-  );
-}
-
-// El componente principal envuelve todo con el proveedor de autenticación
-export default function RootLayout() {
-  return (
-    <AuthProvider>
-      <RootLayoutNav />
-    </AuthProvider>
   );
 }

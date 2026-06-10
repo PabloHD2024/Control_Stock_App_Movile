@@ -1,98 +1,100 @@
-import React, { createContext, useContext, useEffect, useState } from 'react';
-import { supabase } from '../lib/supabase';
-import { Session } from '@supabase/supabase-js';
+import React, { createContext, useContext, useState, useEffect } from 'react';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { getDB } from '../lib/database';
 
-// Exponemos "role" en inglés para que coincida con tus pantallas existentes (como tu UsuariosScreen)
-interface AuthContextType {
-  session: Session | null;
-  user: Session['user'] | null;
-  role: 'admin' | 'user' | null; 
-  loading: boolean;
-  signOut: () => Promise<void>;   
+interface LocalSession {
+  user: {
+    id: string;
+    email: string;
+    rol: string;
+  };
 }
 
-const AuthContext = createContext<AuthContextType>({
-  session: null,
-  user: null,
-  role: null,
-  loading: true,
-  signOut: async () => {},
-});
+interface AuthContextType {
+  session: LocalSession | null;
+  loading: boolean;
+  loginLocal: (email: string, password: string) => Promise<{ error: string | null }>;
+  logoutLocal: () => Promise<void>;
+}
+
+const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
-  const [session, setSession] = useState<Session | null>(null);
-  const [role, setRole] = useState<'admin' | 'user' | null>(null);
+  const [session, setSession] = useState<LocalSession | null>(null);
   const [loading, setLoading] = useState(true);
 
-  // Función para obtener el rol desde la tabla de perfiles de la base de datos
-  const fetchUserRole = async (userId: string) => {
-    try {
-      const { data, error } = await supabase
-        .from('perfiles')
-        .select('rol') 
-        .eq('id', userId)
-        .single();
-
-      // CORREGIDO: Mapeamos el dato que viene en español ('rol') al estado en inglés ('role')
-      if (data && !error) {
-        setRole(data.rol as 'admin' | 'user');
-      } else {
-        if (error) console.log("Nota al traer rol (se usará 'user'):", error.message);
-        setRole('user'); // Rol por defecto si no se encuentra perfil
+  // Al abrir la app, revisamos si el usuario ya se había logueado antes
+  useEffect(() => {
+    const checkPersistedSession = async () => {
+      try {
+        const savedSession = await AsyncStorage.getItem('@local_session');
+        if (savedSession) {
+          setSession(JSON.parse(savedSession));
+        }
+      } catch (e) {
+        console.error("Error al recuperar sesión local:", e);
+      } finally {
+        setLoading(false);
       }
-    } catch (err) {
-      console.error("Error al obtener el rol del usuario:", err);
-      setRole('user');
+    };
+    checkPersistedSession();
+  }, []);
+
+  // Login: valida contra la tabla `perfiles` en SQLite
+  const loginLocal = async (email: string, password: string) => {
+    // Pequeña demora para que el ActivityIndicator se vea profesional
+    await new Promise((resolve) => setTimeout(resolve, 600));
+
+    const cleanEmail = email.trim().toLowerCase();
+
+    try {
+      const db = await getDB();
+      const perfil: any = await db.getFirstAsync(
+        `SELECT * FROM perfiles WHERE email = ? AND password = ? LIMIT 1;`,
+        [cleanEmail, password]
+      );
+
+      if (!perfil) {
+        return { error: 'Credenciales incorrectas. Verificá tu correo y contraseña.' };
+      }
+
+      const mockSession: LocalSession = {
+        user: {
+          id: perfil.id.toString(),
+          email: perfil.email,
+          rol: perfil.rol,
+        },
+      };
+
+      await AsyncStorage.setItem('@local_session', JSON.stringify(mockSession));
+      setSession(mockSession);
+      return { error: null };
+
+    } catch (e: any) {
+      console.error("Error en loginLocal:", e);
+      return { error: 'Error interno al verificar las credenciales.' };
     }
   };
 
-  useEffect(() => {
-    // Chequear sesión inicial
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      setSession(session);
-      if (session?.user) {
-        fetchUserRole(session.user.id).finally(() => setLoading(false));
-      } else {
-        setLoading(false);
-      }
-    }).catch(() => setLoading(false));
-
-    // Escuchar cambios de estado (Login, Logout, etc.)
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
-      setSession(session);
-      if (session?.user) {
-        fetchUserRole(session.user.id).finally(() => setLoading(false));
-      } else {
-        setRole(null);
-        setLoading(false);
-      }
-    });
-
-    return () => {
-      subscription.unsubscribe();
-    };
-  }, []);
-
-  // Función global para cerrar sesión de forma segura
-  const signOut = async () => {
-    setLoading(true);
-    await supabase.auth.signOut();
-    setSession(null);
-    setRole(null);
-    setLoading(false);
+  // Cierre de sesión
+  const logoutLocal = async () => {
+    try {
+      await AsyncStorage.removeItem('@local_session');
+      setSession(null);
+    } catch (e) {
+      console.error("Error al cerrar sesión:", e);
+    }
   };
 
   return (
-    <AuthContext.Provider value={{ 
-      session, 
-      user: session?.user ?? null, 
-      role, // CORREGIDO: Ahora matchea perfectamente con la interfaz AuthContextType
-      loading, 
-      signOut 
-    }}>
+    <AuthContext.Provider value={{ session, loading, loginLocal, logoutLocal }}>
       {children}
     </AuthContext.Provider>
   );
 }
 
-export const useAuth = () => useContext(AuthContext);
+export function useAuth() {
+  const context = useContext(AuthContext);
+  if (!context) throw new Error('useAuth debe usarse dentro de un AuthProvider');
+  return context;
+}

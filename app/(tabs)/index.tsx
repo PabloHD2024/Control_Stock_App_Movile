@@ -1,90 +1,135 @@
 import React, { useState } from 'react';
-import { StyleSheet, Text, View, Button, TouchableOpacity, Alert } from 'react-native';
+import { StyleSheet, Text, View, Button, Alert } from 'react-native';
 import { CameraView, useCameraPermissions } from 'expo-camera';
 import { useRouter } from 'expo-router';
-import { supabase } from '../../lib/supabase';
-import { useAuth } from '../../context/AuthContext';
-import { styles } from '../styles/styles';
+import { getDB } from '../../lib/database';
+import CustomHeader from '../customHeader';
 
 export default function ScanScreen() {
   const [permission, requestPermission] = useCameraPermissions();
   const [scanned, setScanned] = useState(false);
   const router = useRouter();
-  const { signOut } = useAuth();
 
-  if (!permission) return <View />;
-  if (!permission.granted) {
+  if (!permission) {
     return (
-      <View style={styles.center_tab_index}>
-        <Text style={styles.permisos_tab_index}>Requiere permisos de cámara para escanear.</Text>
-        <Button onPress={requestPermission} title="Dar Permiso" />
+      <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+        <Text>Cargando permisos de cámara...</Text>
       </View>
     );
   }
 
-  const handleBarCodeScanned = async ({ type, data }: { type: string, data: string }) => {
-  // 1. Limpiamos espacios y pasamos a mayúsculas por si las dudas
-  const serieEscaneada = data.trim().toUpperCase(); 
-  console.log("Serie procesada por la app:", serieEscaneada);
-
-  // 2. Buscamos de forma más flexible (quitamos .single() para evitar crasheos de formato)
-  const { data: resultados, error } = await supabase
-    .from('equipos')
-    .select('*')
-    .eq('serie', serieEscaneada);
-
-  if (error) {
-    console.error("Error al consultar Supabase:", error.message);
-    return Alert.alert("Error de conexión", "No se pudo consultar la base de datos.");
-  }
-
-  // 3. Evaluamos si encontramos el equipo en el array de resultados
-  if (resultados && resultados.length > 0) {
-    const equipoEncontrado = resultados[0];
-    console.log("¡Equipo encontrado con éxito!", equipoEncontrado);
-    
-    // Redirigimos a la pantalla de detalles pasándole el ID interno
-    router.push({
-      pathname: '/details',
-      params: { id: equipoEncontrado.id }
-    });
-  } else {
-    // 4. ¡LA CLAVE! Si no lo encuentra, le damos la opción de agregarlo
-    console.log(`La serie ${serieEscaneada} no arrojó resultados.`);
-    
-    Alert.alert(
-      "Equipo no registrado",
-      `El número de serie "${serieEscaneada}" no existe en el sistema. ¿Qué deseás hacer?`,
-      [
-        {
-          text: "Cancelar",
-          style: "cancel"
-        },
-        {
-          text: "Registrar Nuevo",
-          onPress: () => {
-            // Te manda a la pantalla para crear el equipo y le pasa la serie por parámetro
-            router.push({
-              pathname: '/create-entry', // <-- Reemplazá por el nombre de tu pantalla de formulario
-              params: { serie: serieEscaneada }
-            });
-          }
-        }
-      ]
+  if (!permission.granted) {
+    return (
+      <View style={localStyles.center_permisos}>
+        <CustomHeader title="Escáner QR" />
+        <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', padding: 20 }}>
+          <Text style={{ textAlign: 'center', marginBottom: 20, fontSize: 16 }}>
+            Se requieren permisos de cámara para escanear los activos.
+          </Text>
+          <Button onPress={requestPermission} title="Dar Permiso a la Cámara" />
+        </View>
+      </View>
     );
   }
-};
+
+  const handleBarCodeScanned = async ({ type, data }: { type: string; data: string }) => {
+    if (scanned) return;
+    setScanned(true);
+
+    const serieEscaneada = data.trim().toUpperCase();
+    console.log("Serie procesada por la app:", serieEscaneada);
+
+    try {
+      const db = await getDB();
+      const resultados: any[] = await db.getAllAsync(
+        'SELECT * FROM equipos WHERE serie = ?',
+        [serieEscaneada]
+      );
+
+      if (resultados && resultados.length > 0) {
+        const equipoEncontrado = resultados[0];
+        // Equipo encontrado: ir a detalles
+        router.push({
+          pathname: '/details',
+          params: { id: equipoEncontrado.id },
+        });
+        setScanned(false);
+      } else {
+        // Equipo no registrado: preguntar si registrar
+        Alert.alert(
+          "Equipo no registrado",
+          `La serie "${serieEscaneada}" no existe localmente. ¿Deseás registrarla?`,
+          [
+            {
+              text: "Cancelar",
+              style: "cancel",
+              onPress: () => setScanned(false),
+            },
+            {
+              text: "Registrar Nuevo",
+              onPress: () => {
+                setScanned(false);
+                router.push({
+                  pathname: '/create_equipment',
+                  params: { serie: serieEscaneada },
+                });
+              },
+            },
+          ]
+        );
+      }
+    } catch (err: any) {
+      console.error("Error en SQLite:", err);
+      Alert.alert("Error", "No se pudo consultar la base de datos local.");
+      setScanned(false);
+    }
+  };
 
   return (
-    <View style={styles.container_tab_index}>
-      <CameraView
-        onBarcodeScanned={scanned ? undefined : handleBarCodeScanned}
-        barcodeScannerSettings={{ barcodeTypes: ['qr', 'code128', 'code39'] }}
-        style={StyleSheet.absoluteFillObject}
-      />
-      <View style={styles.overlay_tab_index}>
-        <Text style={styles.scanText_tab_index}>Apunta al código QR o de barras</Text>
+    <View style={localStyles.mainContainer}>
+      <CustomHeader title="Escáner QR" />
+      <View style={localStyles.cameraContainer}>
+        <CameraView
+          onBarcodeScanned={scanned ? undefined : handleBarCodeScanned}
+          barcodeScannerSettings={{ barcodeTypes: ['qr', 'code128', 'code39'] }}
+          style={StyleSheet.absoluteFillObject}
+        />
+        <View style={localStyles.overlay}>
+          <Text style={localStyles.scanText}>Apunta al código QR o de barras</Text>
+        </View>
       </View>
     </View>
   );
 }
+
+const localStyles = StyleSheet.create({
+  mainContainer: {
+    flex: 1,
+    backgroundColor: '#fff',
+  },
+  cameraContainer: {
+    flex: 1,
+    position: 'relative',
+    overflow: 'hidden',
+  },
+  center_permisos: {
+    flex: 1,
+    backgroundColor: '#fff',
+  },
+  overlay: {
+    position: 'absolute',
+    bottom: 40,
+    left: 20,
+    right: 20,
+    backgroundColor: 'rgba(0,0,0,0.6)',
+    padding: 15,
+    borderRadius: 10,
+    alignItems: 'center',
+  },
+  scanText: {
+    color: '#fff',
+    fontSize: 16,
+    fontWeight: 'bold',
+    textAlign: 'center',
+  },
+});

@@ -1,133 +1,143 @@
 import React, { useEffect, useState } from 'react';
-import { StyleSheet, Text, TextInput, View, TouchableOpacity, Alert, ScrollView, ActivityIndicator } from 'react-native';
+import { Text, TextInput, View, TouchableOpacity, Alert, ScrollView, ActivityIndicator } from 'react-native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
-import { supabase } from '../lib/supabase';
+import { getDB } from '../lib/database'; // <-- SQLite local
 import { useAuth } from '../context/AuthContext';
 import styles from './styles/styles';
 
 export default function DetailsScreen() {
   const { id, serie } = useLocalSearchParams();
   const router = useRouter();
-  const { role, user } = useAuth();
-  const isAdmin = role === 'admin';
+  
+  // 1. Manejo del rol adaptado al nuevo AuthContext local
+  const { session } = useAuth();
+  const user = session?.user;
+  const isAdmin = session?.user?.rol === 'admin';
 
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
 
-  // Estados mapeados a tus columnas de Supabase
+  // Estados locales para los inputs
   const [serialNumber, setSerialNumber] = useState('');
   const [model, setModel] = useState('');
-  const [status, setStatus] = useState(''); // Columna 'estado'
-  const [originLocationId, setOriginLocationId] = useState(''); // Columna 'lugar_origen_id'
-  const [destinationLocationId, setDestinationLocationId] = useState(''); // Columna 'lugar_destino_id'
-  const [inputCounter, setInputCounter] = useState(''); // Columna 'contador_entrada'
-  const [outputCounter, setOutputCounter] = useState(''); // Columna 'contador_salida'
+  const [status, setStatus] = useState(''); 
+  const [originLocationId, setOriginLocationId] = useState(''); 
+  const [destinationLocationId, setDestinationLocationId] = useState(''); 
+  const [inputCounter, setInputCounter] = useState(''); 
+  const [outputCounter, setOutputCounter] = useState(''); 
   const [originalEquipment, setOriginalEquipment] = useState<any>(null);
 
   useEffect(() => {
     fetchEquipmentDetails();
   }, [id, serie]);
 
+  // 2. Traer detalles desde SQLite local
   const fetchEquipmentDetails = async () => {
     try {
       setLoading(true);
-      let query = supabase.from('equipos').select('*');
+      const db = await getDB();
+      let data: any = null;
 
       if (id) {
-        query = query.eq('id', parseInt(id as string, 10));
+        data = await db.getFirstAsync('SELECT * FROM equipos WHERE id = ?', [parseInt(id as string, 10)]);
       } else if (serie) {
-        query = query.eq('serie', (serie as string).trim());
+        data = await db.getFirstAsync('SELECT * FROM equipos WHERE serie = ?', [(serie as string).trim().toUpperCase()]);
       } else {
         return;
       }
 
-      const { data, error } = await query.single();
-
-      if (error || !data) {
-        console.log("Error de Supabase al traer detalles:", error);
-        Alert.alert('Error', 'No se pudieron recuperar los datos del activo.');
+      if (!data) {
+        Alert.alert('Error', 'No se pudieron recuperar los datos del activo en el almacenamiento local.');
         router.back();
         return;
       }
 
-      // Guardamos el registro original y seteamos los inputs con tus columnas reales
+      // Seteamos los inputs con los registros locales
       setOriginalEquipment(data);
       setSerialNumber(data.serie || '');
       setModel(data.modelo || '');
       setStatus(data.estado || '');
       setOriginLocationId(data.lugar_origen_id ? data.lugar_origen_id.toString() : '');
+      
+      // Manejo de destino y salida (si ya contaban con registros previos en la base)
       setDestinationLocationId(data.lugar_destino_id ? data.lugar_destino_id.toString() : '');
       setInputCounter(data.contador_entrada ? data.contador_entrada.toString() : '0');
-      setOutputCounter(data.contador_output ? data.contador_salida.toString() : '0');
+      setOutputCounter(data.contador_salida ? data.contador_salida.toString() : '0');
       
     } catch (err) {
-      console.error("Error en fetchEquipmentDetails:", err);
+      console.error("Error en fetchEquipmentDetails local:", err);
+      Alert.alert('Error', 'Hubo un fallo al leer la base de datos interna.');
     } finally {
       setLoading(false);
     }
   };
 
+  // 3. Ejecutar actualización y Logs en SQLite
   const handleUpdate = async () => {
-    // Validamos que el ID del cliente destino y el contador de salida tengan datos
     if (!destinationLocationId.trim() || !outputCounter.trim()) {
       return Alert.alert('Error', 'El ID de cliente destino y el contador de salida son obligatorios.');
     }
 
     setSubmitting(true);
 
-    // Creamos el paquete de actualización mapeando exactamente tus columnas de Supabase
-    const updatePayload: any = isAdmin 
-      ? { 
-          serie: serialNumber, 
-          modelo: model, 
-          estado: status,
-          lugar_origen_id: originLocationId.trim() ? parseInt(originLocationId, 10) : null,
-          lugar_destino_id: parseInt(destinationLocationId, 10), 
-          contador_entrada: parseInt(inputCounter, 10), 
-          contador_salida: parseInt(outputCounter, 10),
-          ultimo_movimiento: new Date().toISOString()
-        }
-      : { 
-          lugar_destino_id: parseInt(destinationLocationId, 10), 
-          contador_salida: parseInt(outputCounter, 10),
-          ultimo_movimiento: new Date().toISOString()
-        };
-
     try {
-      const { error: updateError } = await supabase
-        .from('equipos')
-        .update(updatePayload)
-        .eq('id', originalEquipment.id);
+      const db = await getDB();
+      const fechaActual = new Date().toISOString();
+      const contSalidaNumerico = parseInt(outputCounter, 10);
+      const destinoNumerico = parseInt(destinationLocationId, 10);
 
-      if (updateError) throw updateError;
+      if (isAdmin) {
+        // El administrador puede editar campos críticos además de la logística básica
+        const contEntradaNumerico = parseInt(inputCounter, 10);
+        const origenNumerico = originLocationId.trim() ? parseInt(originLocationId, 10) : null;
 
-      // Intentar guardar en la tabla histórica si la tenés configurada
-      try {
-        await supabase.from('equipment_logs').insert({
-          equipment_id: originalEquipment.id,
-          user_id: user?.id,
-          previous_location: originalEquipment.lugar_destino_id, 
-          new_location: parseInt(destinationLocationId, 10),
-          previous_counter: originalEquipment.contador_salida,
-          new_counter: parseInt(outputCounter, 10)
-        });
-      } catch (logError) {
-        console.log("Nota: No se guardó el log histórico (revisar nombres de columnas de logs):", logError);
+        await db.runAsync(
+          `UPDATE equipos 
+           SET serie = ?, modelo = ?, estado = ?, lugar_origen_id = ?, lugar_destino_id = ?, contador_entrada = ?, contador_salida = ?
+           WHERE id = ?`,
+          [serialNumber.trim().toUpperCase(), model.trim(), status.trim(), origenNumerico, destinoNumerico, contEntradaNumerico, contSalidaNumerico, originalEquipment.id]
+        );
+      } else {
+        // Un usuario común solo actualiza destino y contador final
+        await db.runAsync(
+          `UPDATE equipos 
+           SET lugar_destino_id = ?, contador_salida = ?
+           WHERE id = ?`,
+          [destinoNumerico, contSalidaNumerico, originalEquipment.id]
+        );
       }
 
-      Alert.alert('Éxito', 'Cambios guardados con trazabilidad informática.', [
-        { text: 'Ver movimientos', 
-          onPress: () => {
-            router.push('movimientos');
-          }
+      // 4. Inserción automática del log histórico en SQLite local
+      try {
+        await db.runAsync(
+          `INSERT INTO equipment_logs (equipment_id, previous_location, new_location, previous_counter, new_counter, created_at)
+           VALUES (?, ?, ?, ?, ?, ?)`,
+          [
+            originalEquipment.id,
+            originalEquipment.lugar_destino_id ? originalEquipment.lugar_destino_id.toString() : 'Depósito',
+            destinationLocationId.trim(),
+            originalEquipment.contador_salida || 0,
+            contSalidaNumerico,
+            fechaActual
+          ]
+        );
+      } catch (logError) {
+        console.error("Error al escribir el historial local:", logError);
+      }
+
+      Alert.alert('Éxito', 'Cambios guardados con trazabilidad informática local.', [
+        { 
+          text: 'Ver movimientos', 
+          onPress: () => router.push('movimientos')
         },
         {
-          text: 'Volver al escaner',
+          text: 'Volver al inicio',
           onPress: () => router.push('/(tabs)')
         }
       ]);
     } catch (err: any) {
-      Alert.alert('Error al actualizar', err.message);
+      console.error(err);
+      Alert.alert('Error al actualizar', 'No se pudo guardar la modificación local: ' + err.message);
     } finally {
       setSubmitting(false);
     }
