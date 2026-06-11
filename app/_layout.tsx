@@ -1,14 +1,9 @@
-import React, { useEffect } from 'react';
+import React from 'react';
 import { ActivityIndicator, View } from 'react-native';
 import { Stack, useRouter, useSegments } from 'expo-router';
 import { AuthProvider, useAuth } from '../context/AuthContext';
-import { initializeDatabase } from '../lib/database';
 
 export default function RootLayout() {
-  useEffect(() => {
-    initializeDatabase().catch(err => console.error("Error al inicializar BD:", err));
-  }, []);
-
   return (
     <AuthProvider>
       <RootLayoutNav />
@@ -21,14 +16,12 @@ function RootLayoutNav() {
   const segments = useSegments();
   const router = useRouter();
 
-  useEffect(() => {
+  React.useEffect(() => {
     if (loading) return;
-
-    const inAuthGroup = segments[0] === '(tabs)';
-
-    if (!session && inAuthGroup) {
+    const inLoginRoute = segments[0] === 'login';
+    if (!session && !inLoginRoute) {
       router.replace('/login');
-    } else if (session && !inAuthGroup) {
+    } else if (session && inLoginRoute) {
       router.replace('/(tabs)');
     }
   }, [session, loading, segments]);
