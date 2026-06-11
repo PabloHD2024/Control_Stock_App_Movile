@@ -24,10 +24,10 @@ export default function LoginScreen() {
   return (
     <View style={styles.container_login}>
       <ImageBackground
-        source={require('../assets/Warehouse_Bkg_5.png')}
+        source={require('../assets/fondo-7.png')}
         style={styles.containerBackground_login}
         resizeMode="cover"
-        imageStyle={{ opacity: 0.5 }}
+        imageStyle={{ opacity: 0.4 }}
       >
         <Text style={styles.logo}>Control de Activos</Text>
 

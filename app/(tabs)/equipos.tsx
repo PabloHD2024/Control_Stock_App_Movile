@@ -1,16 +1,5 @@
 import React, { useEffect, useState, useCallback } from 'react';
-import {
-  Text,
-  View,
-  FlatList,
-  ActivityIndicator,
-  RefreshControl,
-  TextInput,
-  TouchableOpacity,
-  Alert,
-  StyleSheet,
-  Share,
-} from 'react-native';
+import { Text, View, FlatList, ActivityIndicator, RefreshControl, TextInput, TouchableOpacity, Alert, StyleSheet, Share } from 'react-native';
 import { useRouter } from 'expo-router';
 import { useFocusEffect } from 'expo-router';
 import { getDB } from '../../lib/database';

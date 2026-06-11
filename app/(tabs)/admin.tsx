@@ -26,9 +26,6 @@ export default function AdminScreen() {
       const contInicial = parseInt(counter, 10) || 0;
       const fechaActual = new Date().toISOString();
 
-      // ✅ FIX: Se eliminó el campo 'location' de texto libre que no matcheaba
-      // con el esquema (lugar_origen_id es INTEGER). El equipo nuevo parte
-      // sin origen/destino asignado (null) — se asignan en details.tsx.
       await db.runAsync(
         `INSERT INTO equipos (serie, modelo, estado, contador_entrada, contador_salida, fecha_entrada) 
          VALUES (?, ?, ?, ?, ?, ?);`,

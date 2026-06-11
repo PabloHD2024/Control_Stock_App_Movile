@@ -1,8 +1,5 @@
 import React, { useState, useCallback } from 'react';
-import {
-  View, Text, FlatList, TouchableOpacity, TextInput,
-  Alert, ActivityIndicator, StyleSheet, RefreshControl, ScrollView,
-} from 'react-native';
+import { View, Text, FlatList, TouchableOpacity, TextInput, Alert, ActivityIndicator, StyleSheet, RefreshControl, ScrollView } from 'react-native';
 import { useFocusEffect } from 'expo-router';
 import { getDB } from '../../lib/database';
 import CustomHeader from '../customHeader';

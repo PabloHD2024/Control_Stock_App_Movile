@@ -13,22 +13,22 @@ export default function CustomHeader({ title }: HeaderProps) {
   const insets = useSafeAreaInsets();
 
   return (
-    <View style={[s.container, { paddingTop: insets.top + 10 }]}>
-      <Text style={s.title}>{title}</Text>
-      <TouchableOpacity style={s.logoutBtn} onPress={async () => await logoutLocal()}>
+    <View style={[style.container, { paddingTop: insets.top + 10 }]}>
+      <Text style={style.title}>{title}</Text>
+      <TouchableOpacity style={style.logoutBtn} onPress={async () => await logoutLocal()}>
         <Ionicons name="log-out" size={20} color="#fff" />
-        <Text style={s.logoutText}>Salir</Text>
+        <Text style={style.logoutText}>Salir</Text>
       </TouchableOpacity>
     </View>
   );
 }
 
-const s = StyleSheet.create({
+const style = StyleSheet.create({
   container: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    backgroundColor: '#0c2b8f',
+    backgroundColor: '#080a79',
     paddingBottom: 15,
     paddingHorizontal: 20,
     elevation: 13,

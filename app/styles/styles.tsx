@@ -3,7 +3,7 @@ import { StyleSheet } from 'react-native';
 
 export const styles = StyleSheet.create({
     // Estilos para create_Equipment.tsx
-    container_C_E: { flex: 1, backgroundColor: '#fff' },
+    container_C_E: { flex: 1},
     title_C_E: { fontSize: 22, fontWeight: 'bold', marginBottom: 20, color: '#333' },
     label_C_E: { fontSize: 14, fontWeight: '500', color: '#495057', marginTop: 12, marginBottom: 4 },
     input_C_E: { backgroundColor: '#f8f9fa', borderWidth: 1, borderColor: '#ced4da', borderRadius: 6, padding: 12, fontSize: 16 },
@@ -36,12 +36,12 @@ export const styles = StyleSheet.create({
     containerBackground_login: { flex: 1, justifyContent: 'center', width: '100%', height: '100%' },
 
     //Estilos para tab/admin.tsx
-    background_tab_admin: { flex: 1, backgroundColor: '#f8f9fa', padding: 20 },
-    sectionTitle_tab_admin: { fontSize: 20, fontWeight: 'bold', marginBottom: 20 },
-    label_tab_admin: { fontSize: 14, marginBottom: 4, fontWeight: '500' },
-    input_tab_admin: { backgroundColor: '#fff', padding: 12, borderWidth: 1, borderColor: '#ced4da', borderRadius: 8, marginBottom: 14, color: '#a7a7a7' },
-    btn_tab_admin: { backgroundColor: '#0400ff', padding: 14, borderRadius: 8, alignItems: 'center', marginTop: 10 },
-    btnText_tab_admin: { color: '#fff', fontWeight: 'bold', fontSize: 16 },
+    background_tab_admin: { flex: 1},
+    sectionTitle_tab_admin: { fontSize: 20, fontWeight: 'bold', marginBottom: 20, padding: 15 },
+    label_tab_admin: { fontSize: 14, marginBottom: 4, fontWeight: '500', padding: 15 },
+    input_tab_admin: { backgroundColor: '#fff', padding: 15, borderWidth: 1, borderColor: '#ced4da', borderRadius: 8, margin: 15, color: '#a7a7a7' },
+    btn_tab_admin: { backgroundColor: '#0400ff', padding: 15, borderRadius: 8, alignItems: 'center', margin: 15 },
+    btnText_tab_admin: { color: '#fff', fontWeight: 'bold', fontSize: 16, },
 
     // Estilos para tab/index.tsx
     container_tab_index: { flex: 1 },
@@ -51,8 +51,8 @@ export const styles = StyleSheet.create({
     scanText_tab_index: { color: '#fff', fontSize: 16, textAlign: 'center', backgroundColor: 'rgba(0,0,0,0.6)', padding: 10, borderRadius: 8, marginTop: 20 },
 
     // Estilos tab/movimientos.tsx
-    container_tab_movimientos: { flex: 1, backgroundColor: '#f4f6f9', paddingHorizontal: 15, paddingTop: 20 },
-    title_tab_movimientos: { fontSize: 22, fontWeight: 'bold', marginBottom: 15, color: '#333' },
+    container_tab_movimientos: { flex: 1 },
+    title_tab_movimientos: { fontSize: 22, fontWeight: 'bold', margin: 15, color: '#333' },
     center_tab_movimientos: { flex: 1, justifyContent: 'center', alignItems: 'center' },
     empty_tab_movimientos: { textAlign: 'center', color: '#6c757d', marginTop: 30, fontSize: 16 },
     card_tab_movimientos: { backgroundColor: '#fff', borderRadius: 8, padding: 15, marginBottom: 12, borderWidth: 1, borderColor: '#e3e6ec' },
@@ -64,9 +64,9 @@ export const styles = StyleSheet.create({
     detailText_tab_movimientos: { fontSize: 13, color: '#212529', marginBottom: 2 },
 
     // Estilos para tab/usuarios.tsx
-    container_tab_usuarios: { flex: 1, backgroundColor: '#f4f6f9', padding: 20 },
-    title_tab_usuarios: { fontSize: 22, fontWeight: 'bold', color: '#007bff' },
-    subtitle_tab_usuarios: { fontSize: 13, color: '#6c757d', marginBottom: 20, marginTop: 4 },
+    container_tab_usuarios: { flex: 1 },
+    title_tab_usuarios: { fontSize: 22, fontWeight: 'bold', color: '#007bff', margin: 15 },
+    subtitle_tab_usuarios: { fontSize: 13, color: '#6c757d', margin: 15},
     center_tab_usuarios: { flex: 1, justifyContent: 'center', alignItems: 'center', padding: 20 },
     deniedText_tab_usuarios: { fontSize: 20, fontWeight: 'bold', color: '#dc3545', marginBottom: 8 },
     deniedSub_tab_usuarios: { fontSize: 14, color: '#6c757d', textAlign: 'center' },
@@ -80,15 +80,6 @@ export const styles = StyleSheet.create({
     activeRoleText_tab_usuarios: { color: '#fff', fontWeight: 'bold' },
     saveBtn_tab_usuarios: { backgroundColor: '#007bff', borderRadius: 6, padding: 14, alignItems: 'center', marginTop: 15 },
     saveText_tab_usuarios: { color: '#fff', fontSize: 16, fontWeight: '600' },
-
-    // Estilo del header personalizado (en customHeader.tsx, pero lo dejo aquí para referencia rápida)
-    headerContainer: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', backgroundColor: '#0c2b8f', paddingTop: 50,
-    paddingBottom: 15, paddingHorizontal: 20, elevation: 13, shadowColor: '#000', shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.2,
-    marginTop: 20,// Ajuste para que el header quede pegado a la parte superior sin espacio extra
-    marginBottom: 20, },
-    headerTitle: { color: '#fff', fontSize: 20, fontWeight: 'bold'},
-    logoutBtn: { flexDirection: 'row', backgroundColor: '#ff0019', paddingVertical: 6, paddingHorizontal: 20, borderRadius: 5,},
-    logoutText: { color: '#fff', fontWeight: 'bold', fontSize: 14,},
 
 });
 
