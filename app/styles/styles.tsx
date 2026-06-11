@@ -38,8 +38,8 @@ export const styles = StyleSheet.create({
     //Estilos para tab/admin.tsx
     background_tab_admin: { flex: 1},
     sectionTitle_tab_admin: { fontSize: 20, fontWeight: 'bold', marginBottom: 20, padding: 15 },
-    label_tab_admin: { fontSize: 14, marginBottom: 4, fontWeight: '500', padding: 15 },
-    input_tab_admin: { backgroundColor: '#fff', padding: 15, borderWidth: 1, borderColor: '#ced4da', borderRadius: 8, margin: 15, color: '#a7a7a7' },
+    label_tab_admin: { fontSize: 14, margin: 15, fontWeight: '500' },
+    input_tab_admin: { backgroundColor: '#fff', padding: 10, borderWidth: 1, borderColor: '#ced4da', borderRadius: 8, marginLeft: 15, marginRight: 15, color: '#a7a7a7' },
     btn_tab_admin: { backgroundColor: '#0400ff', padding: 15, borderRadius: 8, alignItems: 'center', margin: 15 },
     btnText_tab_admin: { color: '#fff', fontWeight: 'bold', fontSize: 16, },
 
