@@ -46,10 +46,12 @@ export const initializeDatabase = async () => {
     );
   `);
 
+  // equipment_logs ahora incluye usuario_email para rastrear quién hizo cada movimiento
   await db.execAsync(`
     CREATE TABLE IF NOT EXISTS equipment_logs (
       id INTEGER PRIMARY KEY AUTOINCREMENT,
       equipment_id INTEGER NOT NULL,
+      usuario_email TEXT,
       previous_location TEXT,
       new_location TEXT NOT NULL,
       previous_counter INTEGER,
@@ -59,9 +61,15 @@ export const initializeDatabase = async () => {
     );
   `);
 
+  // Migración: agregar columna usuario_email si no existe (bases ya creadas)
+  try {
+    await db.execAsync(`ALTER TABLE equipment_logs ADD COLUMN usuario_email TEXT;`);
+  } catch (_) {}
+
   await db.execAsync(`CREATE INDEX IF NOT EXISTS idx_logs_equipment ON equipment_logs(equipment_id);`);
   await db.execAsync(`CREATE INDEX IF NOT EXISTS idx_logs_created ON equipment_logs(created_at DESC);`);
 
+  // Migración de password por si la tabla ya existía sin esa columna
   try {
     await db.execAsync(`ALTER TABLE perfiles ADD COLUMN password TEXT NOT NULL DEFAULT 'changeme';`);
   } catch (_) {}
@@ -72,6 +80,7 @@ export const initializeDatabase = async () => {
     [1, 'Depósito Propio', 'Casa central', '-']
   );
 
+  // Admin principal siempre presente
   await db.runAsync(
     `INSERT OR IGNORE INTO perfiles (email, password, rol) VALUES (?, ?, ?);`,
     ['admin@stock.com', 'admin123', 'admin']
@@ -80,8 +89,31 @@ export const initializeDatabase = async () => {
   console.log('Base de datos SQLite inicializada correctamente.');
 };
 
+/**
+ * Si la base de datos ya tiene datos, este seed no hará nada. Solo inserta datos de ejemplo la primera vez que se ejecuta.
+ */
 export const seedDatabase = async () => {
   const db = await getDB();
+
+  // Crear tabla de control si no existe
+  await db.execAsync(`
+    CREATE TABLE IF NOT EXISTS app_config (
+      key TEXT PRIMARY KEY,
+      value TEXT NOT NULL
+    );
+  `);
+
+  // Verificar si el seed ya se ejecutó
+  const seedDone = await db.getFirstAsync<{ value: string }>(
+    `SELECT value FROM app_config WHERE key = 'seed_done'`
+  );
+
+  if (seedDone?.value === '1') {
+    console.log('Seed ya ejecutado anteriormente. Omitiendo.');
+    return;
+  }
+
+  // --- Insertar datos de ejemplo solo la primera vez ---
 
   const usuarios = [
     ['carlos.garcia@empresa.com', 'pass1234', 'user'],
@@ -124,5 +156,10 @@ export const seedDatabase = async () => {
     );
   }
 
-  console.log('Datos de prueba insertados.');
+  // Marcar seed como ejecutado
+  await db.runAsync(
+    `INSERT OR REPLACE INTO app_config (key, value) VALUES ('seed_done', '1');`
+  );
+
+  console.log('Datos de ejemplo insertados (primera ejecución).');
 };

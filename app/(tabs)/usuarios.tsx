@@ -39,11 +39,13 @@ export default function UsuariosScreen() {
       const db = await getDB();
       const emailLimpio = email.trim().toLowerCase();
 
-      await db.runAsync(
+
+
+       let result = await db.runAsync(
         `INSERT INTO perfiles (email, password, rol) VALUES (?, ?, ?);`,
         [emailLimpio, password.trim(), userRole]
       );
-
+      console.log('Nuevo perfil creado con ID:', result);
       Alert.alert('Éxito', `Usuario "${emailLimpio}" habilitado con rol: ${userRole}.`);
       setEmail('');
       setPassword('');

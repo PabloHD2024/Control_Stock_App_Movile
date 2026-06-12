@@ -1,15 +1,91 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Text, TextInput, TouchableOpacity, Alert, ScrollView } from 'react-native';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import { getDB } from '../../lib/database';
 import styles from '../styles/styles';
 import CustomHeader from '../customHeader';
+import { useAuth } from '../../context/AuthContext';
+import { Ionicons } from '@expo/vector-icons';
+import { StyleSheet, View } from 'react-native';
 
 export default function AdminScreen() {
+  const { session } = useAuth();
+  const usuarioEmail = session?.user?.email ?? 'desconocido';
+  const draftKey = `draft_admin_${usuarioEmail}`;
+
   const [serial, setSerial] = useState('');
   const [brand, setBrand] = useState('');
   const [model, setModel] = useState('');
   const [counter, setCounter] = useState('0');
   const [loading, setLoading] = useState(false);
+  const [hasDraft, setHasDraft] = useState(false);
+
+  const isDataLoaded = useRef(false);
+
+  // Cargar borrador al montar
+  useEffect(() => {
+    loadDraft();
+  }, []);
+
+  // Guardar borrador automáticamente al cambiar campos
+  useEffect(() => {
+    if (!isDataLoaded.current) return;
+    saveDraft();
+  }, [serial, brand, model, counter]);
+
+  const loadDraft = async () => {
+    try {
+      const saved = await AsyncStorage.getItem(draftKey);
+      if (saved) {
+        const draft = JSON.parse(saved);
+        // Solo restaurar si hay algo útil en el borrador
+        if (draft.serial || draft.brand || draft.model) {
+          setSerial(draft.serial ?? '');
+          setBrand(draft.brand ?? '');
+          setModel(draft.model ?? '');
+          setCounter(draft.counter ?? '0');
+          setHasDraft(true);
+        }
+      }
+    } catch (e) {
+      console.error('Error cargando borrador admin:', e);
+    } finally {
+      isDataLoaded.current = true;
+    }
+  };
+
+  const saveDraft = async () => {
+    try {
+      // No guardar borrador si todos los campos están vacíos/por defecto
+      if (!serial.trim() && !brand.trim() && !model.trim() && counter === '0') {
+        await AsyncStorage.removeItem(draftKey);
+        setHasDraft(false);
+        return;
+      }
+      await AsyncStorage.setItem(draftKey, JSON.stringify({ serial, brand, model, counter }));
+      setHasDraft(true);
+    } catch (e) {
+      console.error('Error guardando borrador admin:', e);
+    }
+  };
+
+  const clearDraft = async () => {
+    try {
+      await AsyncStorage.removeItem(draftKey);
+      setHasDraft(false);
+    } catch (e) {
+      console.error('Error limpiando borrador admin:', e);
+    }
+  };
+
+  const resetForm = () => {
+    isDataLoaded.current = false;
+    setSerial('');
+    setBrand('');
+    setModel('');
+    setCounter('0');
+    setTimeout(() => { isDataLoaded.current = true; }, 100);
+  };
 
   const handleCreate = async () => {
     if (!serial.trim() || !brand.trim() || !model.trim()) {
@@ -29,21 +105,14 @@ export default function AdminScreen() {
       await db.runAsync(
         `INSERT INTO equipos (serie, modelo, estado, contador_entrada, contador_salida, fecha_entrada) 
          VALUES (?, ?, ?, ?, ?, ?);`,
-        [
-          serieFormateada,
-          modeloConsolidado,
-          'Disponible',
-          contInicial,
-          contInicial,
-          fechaActual,
-        ]
+        [serieFormateada, modeloConsolidado, 'Disponible', contInicial, contInicial, fechaActual]
       );
 
+      // Limpiar borrador al guardar exitosamente
+      await clearDraft();
+      resetForm();
+
       Alert.alert('Éxito', 'Equipo añadido con éxito a la base de datos local.');
-      setSerial('');
-      setBrand('');
-      setModel('');
-      setCounter('0');
     } catch (error: any) {
       console.error("Error al guardar en SQLite:", error);
       if (error.message?.includes('UNIQUE constraint failed')) {
@@ -59,6 +128,15 @@ export default function AdminScreen() {
   return (
     <ScrollView style={styles.background_tab_admin}>
       <CustomHeader title="Administración" />
+
+      {/* Banner de borrador */}
+      {hasDraft && (
+        <View style={s.draftBanner}>
+          <Ionicons name="time-outline" size={16} color="#856404" />
+          <Text style={s.draftText}>Tenés un formulario incompleto guardado</Text>
+        </View>
+      )}
+
       <Text style={styles.sectionTitle_tab_admin}>Dar de Alta Nuevo Equipo</Text>
 
       <Text style={styles.label_tab_admin}>Número de Serie (Obligatorio)</Text>
@@ -104,6 +182,36 @@ export default function AdminScreen() {
           {loading ? 'Guardando...' : 'Guardar en Base de Datos Local'}
         </Text>
       </TouchableOpacity>
+
+      {/* Botón descartar borrador */}
+      {hasDraft && (
+        <TouchableOpacity style={s.discardBtn} onPress={() => {
+          Alert.alert('Descartar borrador', '¿Seguro que querés limpiar el formulario?', [
+            { text: 'Cancelar', style: 'cancel' },
+            { text: 'Limpiar', style: 'destructive', onPress: async () => {
+              await clearDraft();
+              resetForm();
+            }},
+          ]);
+        }}>
+          <Ionicons name="trash-outline" size={15} color="#dc3545" />
+          <Text style={s.discardText}>Descartar borrador</Text>
+        </TouchableOpacity>
+      )}
     </ScrollView>
   );
 }
+
+const s = StyleSheet.create({
+  draftBanner: {
+    flexDirection: 'row', alignItems: 'center', gap: 8,
+    backgroundColor: '#fff3cd', borderWidth: 1, borderColor: '#ffc107',
+    borderRadius: 8, padding: 10, marginHorizontal: 16, marginTop: 12,
+  },
+  draftText: { fontSize: 13, color: '#856404', fontWeight: '600', flex: 1 },
+  discardBtn: {
+    flexDirection: 'row', alignItems: 'center', justifyContent: 'center',
+    gap: 6, marginTop: 8, marginBottom: 24, padding: 10,
+  },
+  discardText: { fontSize: 13, color: '#dc3545' },
+});

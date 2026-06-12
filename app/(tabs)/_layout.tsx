@@ -22,12 +22,57 @@ export default function TabsLayout() {
         tabBarLabelStyle: { fontSize: 10, fontWeight: '600' },
       }}
     >
-      <Tabs.Screen name="index" options={{ title: 'Escanear', tabBarIcon: ({ color, size }) => <Ionicons name="qr-code-outline" size={size} color={color} /> }} />
-      <Tabs.Screen name="equipos" options={{ title: 'Equipos', tabBarIcon: ({ color, size }) => <Ionicons name="cube-outline" size={size} color={color} /> }} />
-      <Tabs.Screen name="movimientos" options={{ title: 'Movimientos', tabBarIcon: ({ color, size }) => <Ionicons name="swap-horizontal-outline" size={size} color={color} /> }} />
-      <Tabs.Screen name="clientes" options={{ title: 'Clientes', tabBarIcon: ({ color, size }) => <Ionicons name="business-outline" size={size} color={color} /> }} />
-      <Tabs.Screen name="admin" options={{ title: 'Alta Equipo', tabBarIcon: ({ color, size }) => <Ionicons name="add-circle-outline" size={size} color={color} /> }} />
-      <Tabs.Screen name="usuarios" options={{ title: 'Usuarios', tabBarIcon: ({ color, size }) => <Ionicons name="people-outline" size={size} color={color} /> }} />
+      {/* ✅ index es ahora la pantalla Home */}
+      <Tabs.Screen
+        name="index"
+        options={{
+          title: 'Inicio',
+          tabBarIcon: ({ color, size }) => <Ionicons name="home-outline" size={size} color={color} />,
+        }}
+      />
+      {/* ✅ El escáner pasó a ser scanner.tsx */}
+      <Tabs.Screen
+        name="scanner"
+        options={{
+          title: 'Escanear',
+          tabBarIcon: ({ color, size }) => <Ionicons name="qr-code-outline" size={size} color={color} />,
+        }}
+      />
+      <Tabs.Screen
+        name="equipos"
+        options={{
+          title: 'Equipos',
+          tabBarIcon: ({ color, size }) => <Ionicons name="cube-outline" size={size} color={color} />,
+        }}
+      />
+      <Tabs.Screen
+        name="movimientos"
+        options={{
+          title: 'Movimientos',
+          tabBarIcon: ({ color, size }) => <Ionicons name="swap-horizontal-outline" size={size} color={color} />,
+        }}
+      />
+      <Tabs.Screen
+        name="clientes"
+        options={{
+          title: 'Clientes',
+          tabBarIcon: ({ color, size }) => <Ionicons name="business-outline" size={size} color={color} />,
+        }}
+      />
+      <Tabs.Screen
+        name="admin"
+        options={{
+          title: 'Alta Equipo',
+          tabBarIcon: ({ color, size }) => <Ionicons name="add-circle-outline" size={size} color={color} />,
+        }}
+      />
+      <Tabs.Screen
+        name="usuarios"
+        options={{
+          title: 'Usuarios',
+          tabBarIcon: ({ color, size }) => <Ionicons name="people-outline" size={size} color={color} />,
+        }}
+      />
     </Tabs>
   );
 }

@@ -9,16 +9,31 @@ interface HeaderProps {
 }
 
 export default function CustomHeader({ title }: HeaderProps) {
-  const { logoutLocal } = useAuth();
+  const { logoutLocal, session } = useAuth();
   const insets = useSafeAreaInsets();
+
+  // Mostrar solo la parte antes del @ como nombre de usuario
+  const userName = session?.user?.email?.split('@')[0] ?? '';
 
   return (
     <View style={[style.container, { paddingTop: insets.top + 10 }]}>
       <Text style={style.title}>{title}</Text>
-      <TouchableOpacity style={style.logoutBtn} onPress={async () => await logoutLocal()}>
-        <Ionicons name="log-out" size={20} color="#fff" />
-        <Text style={style.logoutText}>Salir</Text>
-      </TouchableOpacity>
+
+      <View style={style.rightSection}>
+        {/* Nombre del usuario */}
+        {!!userName && (
+          <View style={style.userBadge}>
+            <Ionicons name="person-circle-outline" size={15} color="#c9d4f5" />
+            <Text style={style.userName} numberOfLines={1}>{userName}</Text>
+          </View>
+        )}
+
+        {/* Botón salir */}
+        <TouchableOpacity style={style.logoutBtn} onPress={async () => await logoutLocal()}>
+          <Ionicons name="log-out" size={18} color="#fff" />
+          <Text style={style.logoutText}>Salir</Text>
+        </TouchableOpacity>
+      </View>
     </View>
   );
 }
@@ -30,7 +45,7 @@ const style = StyleSheet.create({
     alignItems: 'center',
     backgroundColor: '#080a79',
     paddingBottom: 15,
-    paddingHorizontal: 20,
+    paddingHorizontal: 16,
     elevation: 13,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },
@@ -39,21 +54,42 @@ const style = StyleSheet.create({
   },
   title: {
     color: '#fff',
-    fontSize: 20,
+    fontSize: 18,
     fontWeight: 'bold',
+    flex: 1,
+  },
+  rightSection: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+  },
+  userBadge: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 4,
+    backgroundColor: 'rgba(255,255,255,0.12)',
+    paddingVertical: 5,
+    paddingHorizontal: 10,
+    borderRadius: 20,
+    maxWidth: 120,
+  },
+  userName: {
+    color: '#c9d4f5',
+    fontSize: 12,
+    fontWeight: '600',
   },
   logoutBtn: {
     flexDirection: 'row',
     backgroundColor: '#ff0019',
     paddingVertical: 6,
-    paddingHorizontal: 20,
+    paddingHorizontal: 12,
     borderRadius: 5,
     alignItems: 'center',
-    gap: 6,
+    gap: 5,
   },
   logoutText: {
     color: '#fff',
     fontWeight: 'bold',
-    fontSize: 14,
+    fontSize: 13,
   },
 });
