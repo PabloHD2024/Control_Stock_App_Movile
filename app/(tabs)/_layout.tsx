@@ -22,7 +22,7 @@ export default function TabsLayout() {
         tabBarLabelStyle: { fontSize: 10, fontWeight: '600' },
       }}
     >
-      {/* ✅ index es ahora la pantalla Home */}
+      {/* El index es ahora la pantalla Home */}
       <Tabs.Screen
         name="index"
         options={{
@@ -30,7 +30,7 @@ export default function TabsLayout() {
           tabBarIcon: ({ color, size }) => <Ionicons name="home-outline" size={size} color={color} />,
         }}
       />
-      {/* ✅ El escáner pasó a ser scanner.tsx */}
+      {/* El escáner pasó a ser scanner.tsx */}
       <Tabs.Screen
         name="scanner"
         options={{
