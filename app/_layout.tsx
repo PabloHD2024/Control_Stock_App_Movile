@@ -35,7 +35,7 @@ function RootLayoutNav() { // Componente separado para manejar la navegación y 
   }
 
   return (
-    <Stack screenOptions={{ headerShown: false }}>
+    <Stack screenOptions={{ headerShown: false, animation: 'slide_from_right', }}> 
       <Stack.Screen name="login" options={{ gestureEnabled: false }} />
       <Stack.Screen name="(tabs)" />
       <Stack.Screen name="create_equipment" options={{ headerShown: false }} />

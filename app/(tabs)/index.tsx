@@ -1,7 +1,5 @@
 import React, { useCallback, useState } from 'react';
-import {
-  View, Text, StyleSheet, TouchableOpacity, ScrollView, ActivityIndicator,
-} from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, ScrollView, ActivityIndicator, } from 'react-native';
 import { useRouter } from 'expo-router';
 import { useFocusEffect } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
@@ -180,14 +178,14 @@ const s = StyleSheet.create({
   statsGrid: {
     flexDirection: 'row',
     flexWrap: 'wrap',
-    gap: 10,
+    gap: 22,
     marginBottom: 20,
   },
 
   accessGrid: {
     flexDirection: 'row',
     flexWrap: 'wrap',
-    gap: 10,
+    gap: 22,
     marginBottom: 20,
   },
   accessCard: {

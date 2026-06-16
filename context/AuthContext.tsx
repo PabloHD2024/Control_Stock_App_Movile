@@ -26,7 +26,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   useEffect(() => {
     const setup = async () => {
       try {
-        // ✅ Primero inicializamos la BD, luego recuperamos la sesión
+        // Primero inicializamos la BD, luego recuperamos la sesión
         await initializeDatabase();
         await seedDatabase();
         const savedSession = await AsyncStorage.getItem('@local_session');

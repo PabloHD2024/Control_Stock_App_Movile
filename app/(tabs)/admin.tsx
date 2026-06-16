@@ -1,12 +1,11 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Text, TextInput, TouchableOpacity, Alert, ScrollView } from 'react-native';
+import { Text, TextInput, TouchableOpacity, Alert, ScrollView, StyleSheet, View } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { getDB } from '../../lib/database';
-import styles from '../styles/styles';
+import { styles } from '../styles/styles';
 import CustomHeader from '../customHeader';
 import { useAuth } from '../../context/AuthContext';
 import { Ionicons } from '@expo/vector-icons';
-import { StyleSheet, View } from 'react-native';
 
 export default function AdminScreen() {
   const { session } = useAuth();
@@ -22,23 +21,23 @@ export default function AdminScreen() {
 
   const isDataLoaded = useRef(false);
 
-  // Cargar borrador al montar
+  // 1. Cargar borrador al montar
   useEffect(() => {
     loadDraft();
   }, []);
 
-  // Guardar borrador automáticamente al cambiar campos
+  // 2. Guardar borrador automáticamente SOLO cuando ya se haya cargado
   useEffect(() => {
     if (!isDataLoaded.current) return;
     saveDraft();
   }, [serial, brand, model, counter]);
 
-  const loadDraft = async () => {
+  // CAMBIO: Transformadas a funciones tradicionales (Corrige el aviso de ESLint)
+  async function loadDraft() {
     try {
       const saved = await AsyncStorage.getItem(draftKey);
       if (saved) {
         const draft = JSON.parse(saved);
-        // Solo restaurar si hay algo útil en el borrador
         if (draft.serial || draft.brand || draft.model) {
           setSerial(draft.serial ?? '');
           setBrand(draft.brand ?? '');
@@ -50,13 +49,14 @@ export default function AdminScreen() {
     } catch (e) {
       console.error('Error cargando borrador admin:', e);
     } finally {
-      isDataLoaded.current = true;
+      setTimeout(() => {
+        isDataLoaded.current = true;
+      }, 100);
     }
-  };
+  }
 
-  const saveDraft = async () => {
+  async function saveDraft() {
     try {
-      // No guardar borrador si todos los campos están vacíos/por defecto
       if (!serial.trim() && !brand.trim() && !model.trim() && counter === '0') {
         await AsyncStorage.removeItem(draftKey);
         setHasDraft(false);
@@ -67,16 +67,16 @@ export default function AdminScreen() {
     } catch (e) {
       console.error('Error guardando borrador admin:', e);
     }
-  };
+  }
 
-  const clearDraft = async () => {
+  async function clearDraft() {
     try {
       await AsyncStorage.removeItem(draftKey);
       setHasDraft(false);
     } catch (e) {
       console.error('Error limpiando borrador admin:', e);
     }
-  };
+  }
 
   const resetForm = () => {
     isDataLoaded.current = false;
@@ -108,7 +108,6 @@ export default function AdminScreen() {
         [serieFormateada, modeloConsolidado, 'Disponible', contInicial, contInicial, fechaActual]
       );
 
-      // Limpiar borrador al guardar exitosamente
       await clearDraft();
       resetForm();
 
@@ -129,7 +128,6 @@ export default function AdminScreen() {
     <ScrollView style={styles.background_tab_admin}>
       <CustomHeader title="Administración" />
 
-      {/* Banner de borrador */}
       {hasDraft && (
         <View style={s.draftBanner}>
           <Ionicons name="time-outline" size={16} color="#856404" />
@@ -183,7 +181,6 @@ export default function AdminScreen() {
         </Text>
       </TouchableOpacity>
 
-      {/* Botón descartar borrador */}
       {hasDraft && (
         <TouchableOpacity style={s.discardBtn} onPress={() => {
           Alert.alert('Descartar borrador', '¿Seguro que querés limpiar el formulario?', [
