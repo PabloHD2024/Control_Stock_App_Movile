@@ -61,7 +61,7 @@ export const initializeDatabase = async () => {
     );
   `);
 
-  // Migración: agregar columna usuario_email si no existe (bases ya creadas)
+  // Migración: agrego columna usuario_email (bases ya creadas sin esa columna)
   try {
     await db.execAsync(`ALTER TABLE equipment_logs ADD COLUMN usuario_email TEXT;`);
   } catch (_) {}
