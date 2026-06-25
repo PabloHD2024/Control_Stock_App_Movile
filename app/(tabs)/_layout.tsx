@@ -1,9 +1,12 @@
 import { Tabs } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { useAuth } from '../../context/AuthContext';
 
 export default function TabsLayout() {
   const insets = useSafeAreaInsets();
+  const { session } = useAuth();
+  const isAdmin = session?.user?.rol === 'admin';
 
   return (
     <Tabs
@@ -70,6 +73,7 @@ export default function TabsLayout() {
         name="usuarios"
         options={{
           title: 'Usuarios',
+          href: isAdmin ? '/usuarios' : null, // Si no es admin, no se muestra la pantalla de usuarios
           tabBarIcon: ({ color, size }) => <Ionicons name="people-outline" size={size} color={color} />,
         }}
       />

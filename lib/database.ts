@@ -95,7 +95,7 @@ export const initializeDatabase = async () => {
 export const seedDatabase = async () => {
   const db = await getDB();
 
-  // Crear tabla de control si no existe
+  // Crear tabla de control. Si ya existe, no hace nada.
   await db.execAsync(`
     CREATE TABLE IF NOT EXISTS app_config (
       key TEXT PRIMARY KEY,
